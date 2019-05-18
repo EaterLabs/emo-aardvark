@@ -1,74 +1,68 @@
 package me.eater.emo.aardvark.views
 
-import javafx.event.EventTarget
 import javafx.scene.Node
-import javafx.scene.input.MouseButton
 import javafx.scene.layout.VBox
-import me.eater.emo.aardvark.styles.MainStyle
+import javafx.scene.shape.Rectangle
+import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.controllers.EmoController
 import tornadofx.*
 
 class MainWindow : View("emo — Eater's Mod Manager") {
-    val accountsView: AccountsView by inject()
-    val profilesView: ProfilesView by inject()
-    val modpacksView: ModpacksView by inject()
+    private val emoController: EmoController by inject()
+
+    private val accountsView: AccountsView by inject()
+    private val profilesView: ProfilesView by inject()
+    private val modpacksView: ModpacksView by inject()
 
     override val root = borderpane {
-        addClass("main-window")
-        addStylesheet(MainStyle::class)
+        addClass("main-window", "contrast-light")
 
-        center = hbox { }
+        center = if (emoController.accounts.count() == 0) accountsView.root else profilesView.root
 
-        top = hbox {
-            label("Eater's Mod Organizer") {
-                addClass("main-label")
+        top = vbox {
+            addClass("tab-bar")
+
+            clip = Rectangle(this.width, this.height).apply {
+                heightProperty().bind(this@vbox.heightProperty())
+                widthProperty().bind(this@vbox.widthProperty())
             }
 
-            labelButton("profiles-tab", "Profiles") {
-                setOnMouseClicked {
-                    if (it.button != MouseButton.PRIMARY) return@setOnMouseClicked
-                    this@borderpane.selectAll<Node>(CssRule.c("main-button-label"))
-                        .forEach { node: Node -> node.removeClass("current") }
-                    this@labelButton.addClass("current")
 
-                    center.replaceWith(profilesView.root)
+            hbox {
+                fun menuButton(id: String, text: String, view: Node, block: VBox.() -> Unit = {}) = vbox {
+                    this.id = id
+
+                    addClass("main-button-label")
+
+                    if (view === center) {
+                        addClass("current")
+                    }
+
+                    label(text)
+
+                    click {
+                        this@borderpane.selectAll<Node>(CssRule.c("main-button-label"))
+                            .forEach { node: Node -> node.removeClass("current") }
+
+                        addClass("current")
+                        center.replaceWith(view)
+                    }
+
+                    block(this)
                 }
-            }
 
-            labelButton("modpacks-tab", "Modpacks") {
-                setOnMouseClicked {
-                    if (it.button != MouseButton.PRIMARY) return@setOnMouseClicked
+                vbox {
+                    addClass("main-label-container")
 
-                    this@borderpane.selectAll<Node>(CssRule.c("main-button-label"))
-                        .forEach { node: Node -> node.removeClass("current") }
-                    this@labelButton.addClass("current")
-
-                    center.replaceWith(modpacksView.root)
+                    label("Eater's Mod Organizer") {
+                        addClass("main-label")
+                    }
                 }
-            }
 
-            labelButton("accounts-tab", "Accounts") {
-
-                setOnMouseClicked {
-                    if (it.button != MouseButton.PRIMARY) return@setOnMouseClicked
-
-                    this@borderpane.selectAll<Node>(CssRule.c("main-button-label"))
-                        .forEach { node: Node -> node.removeClass("current") }
-
-                    this@labelButton.addClass("current")
-
-                    center.replaceWith(accountsView.root)
-                }
+                menuButton("profiles-tab", "Profiles", profilesView.root)
+                menuButton("modpacks-tab", "Modpacks", modpacksView.root)
+                menuButton("accounts-tab", "Accounts", accountsView.root)
             }
         }
-    }
-
-    fun EventTarget.labelButton(id: String, text: String, block: VBox.() -> Unit = {}) = vbox {
-        this.id = id
-
-        addClass("main-button-label")
-
-        label(text)
-
-        block(this)
     }
 }

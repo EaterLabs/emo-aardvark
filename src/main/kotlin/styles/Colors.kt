@@ -1,14 +1,22 @@
 package me.eater.emo.aardvark.styles
 
+import javafx.scene.paint.Color
+import javafx.scene.paint.Paint
+import tornadofx.MultiValue
 import tornadofx.c
+import tornadofx.multi
 
-class Colors {
-    companion object {
-        val dark = c("rgba(56, 60, 68, 1)")
-        val light = c("rgba(215, 231, 232, 1)")
+@Suppress("UNCHECKED_CAST")
+data class Colors(
+    val dark: Color = c("rgba(56, 60, 68, 1)"),
+    val light: Color = c("rgba(215, 231, 232, 1)"),
 
-        val profiles = c("rgb(54, 143, 139)")
-        val modpacks = c("#966d30")
-        val accounts = c("#6b4429")
-    }
-}
+    val profiles: Color = c("rgb(54, 143, 139)"),
+    val modpacks: Color = c("#966d30"),
+    val accounts: Color = c("#6b4429"),
+
+    val error: Color = c("#fc5c65"),
+
+    val background: Color = dark,
+    val foreground: Color = light
+)
