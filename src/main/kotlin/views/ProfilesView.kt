@@ -1,6 +1,5 @@
 package me.eater.emo.aardvark.views
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
-import me.eater.emo.aardvark.click
 import me.eater.emo.aardvark.f
 import me.eater.emo.aardvark.labelButton
 import tornadofx.*

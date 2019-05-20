@@ -6,8 +6,8 @@ import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.text.FontPosture
 import javafx.scene.text.TextBoundsType
-import tornadofx.*
 import me.eater.emo.aardvark.box
+import tornadofx.*
 
 class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
     companion object {
@@ -39,9 +39,38 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
 
     init {
         mainWindow {
+            withStyle {
+                s(actionbar, bigAccount, labelButton, textField) {
+                    backgroundColor = it.color.m
+                }
+
+                textField {
+                    borderColor = box(it.color.darker()).m
+                }
+
+                labelButton {
+                    and(hover) {
+                        backgroundColor = it.color.darker().m
+                    }
+                }
+
+                button {
+                    backgroundColor = it.color.darker().m
+
+                    and(hover) {
+                        backgroundColor = it.color.darker().darker().m
+                    }
+                }
+
+                ".form" {
+                    backgroundColor = it.color.m
+                    maxWidth = 600.px
+                }
+            }
+
             backgroundColor = theme.background.m
 
-            text {
+            ".text, Text" {
                 fill = theme.foreground
 
             }
@@ -93,8 +122,14 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
             ".tab-bar" {
                 padding = box(top = (-10).px)
 
-                s(hbox, vbox) {
+                s(vbox) {
                     alignment = Pos.BASELINE_LEFT
+                }
+            }
+
+            ".main-logo-container" {
+                ".main-logo" {
+                    fill = theme.foreground
                 }
             }
 
@@ -201,6 +236,10 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 }
             }
 
+            buttonBar {
+                padding = box(vertical = 5.px)
+            }
+
             button {
                 borderRadius = multi(box(0.px))
                 padding = box(10.px)
@@ -213,41 +252,78 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 padding = box(10.px)
                 textFill = theme.light
                 borderStyle = BorderStrokeStyle.SOLID.m
-                borderColor = box(theme.accounts.darker()).m
                 borderWidth = box(2.px).m
             }
 
-            s(".error-box") {
+            ".error-box" {
                 backgroundColor = theme.error.m
                 padding = box(5.px)
             }
 
-            withStyle {
-                s(actionbar, bigAccount, labelButton, textField) {
-                    backgroundColor = it.color.m
-                }
+            ".repository-listing, .modpack-listing" {
+                alignment = Pos.TOP_CENTER
 
-                labelButton {
-                    and(hover) {
-                        backgroundColor = it.color.darker().m
+                ".repository-fragment, .modpack-fragment" {
+                    maxWidth = 800.px
+                }
+            }
+
+            ".repository-fragment, .modpack-fragment" {
+                padding = box(5.px)
+                backgroundColor = theme.modpacks.darker().m
+
+                ".repository-description, .modpack-description" {
+                    fontStyle = FontPosture.ITALIC
+                    fontSize = 12.px
+                }
+            }
+
+            ".modpack-fragment" {
+                ".combo-box" {
+                    backgroundRadius = box(0.px).m
+                    backgroundColor = theme.modpacks.m
+                    backgroundInsets = box(0.px).m
+                    padding = box(0.px)
+
+                    ".virtual-flow, .clipped-container, .list-cell, .list-view, .arrow-button" {
+                        backgroundRadius = box(0.px).m
+                        backgroundColor = theme.modpacks.m
+                        backgroundInsets = box(0.px).m
+                        cursor = OPEN_HAND
+                    }
+
+                    ".list-view" {
+                        padding = box(0.px)
+                    }
+
+                    ".list-cell:hover:filled" {
+                        backgroundColor = theme.modpacks.darker().darker().m
+                    }
+
+                    ".arrow-button" {
+                        padding = box(5.px)
+
+                        ".arrow" {
+                            backgroundColor = theme.foreground.m
+                        }
+                    }
+
+                    ".new-profile-button" {
+                        fontSize = 15.px
                     }
                 }
+            }
 
-                button {
-                    backgroundColor = it.color.darker().m
-
-                    and(hover) {
-                        backgroundColor = it.color.darker().darker().m
+            "#modpacks-view" {
+                ".modpack-fragment" {
+                    labelButton {
+                        and(hover) {
+                            backgroundColor = theme.modpacks.darker().darker().m
+                        }
                     }
-                }
-
-                ".form" {
-                    backgroundColor = it.color.m
-                    maxWidth = 600.px
                 }
             }
         }
-
     }
 
     private fun withStyle(block: CssSelectionBlock.(Style) -> Unit) {

@@ -1,17 +1,16 @@
 package me.eater.emo.aardvark.views
 
+import javafx.application.Platform
 import javafx.collections.ObservableList
 import javafx.scene.Node
 import javafx.scene.Parent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.javafx.JavaFx
-import kotlinx.coroutines.launch
+import javafx.scene.layout.VBox
 import tornadofx.*
 
-abstract class Listing<T>(private val items: ObservableList<T>) : View("My View") {
-    open val noItemsText = "No items"
+abstract class Listing<T>(private val items: ObservableList<T>) : View() {
+    private lateinit var listingVBox: VBox
 
+    open val noItemsText = "No items"
     open val noItemsView = vbox {
         addClass("listing", "listing-empty")
 
@@ -22,11 +21,14 @@ abstract class Listing<T>(private val items: ObservableList<T>) : View("My View"
         }
     }
 
+    val listingView: VBox
+        get() = listingVBox
+
     open val itemsView =
         scrollpane(true) {
             addClass("listing-scrollpane")
 
-            vbox {
+            listingVBox = vbox {
                 addClass("listing", "listing-filled")
                 bindChildren(items) {
                     render(it)
@@ -40,12 +42,22 @@ abstract class Listing<T>(private val items: ObservableList<T>) : View("My View"
     private val current: Parent
         get() = if (items.count() > 0) itemsView else noItemsView
 
-    final override val root = current
+    final override var root = current
+
+    override fun onDock() {
+        if (!Platform.isFxApplicationThread()) throw RuntimeException(":(")
+        if (root !== current) {
+            root.replaceWith(current)
+            root = current
+        }
+    }
 
     init {
         items.onChange {
-            GlobalScope.launch(Dispatchers.JavaFx) {
+            if (!Platform.isFxApplicationThread()) throw RuntimeException(":(")
+            if (root !== current) {
                 root.replaceWith(current)
+                root = current
             }
         }
     }

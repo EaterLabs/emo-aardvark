@@ -1,7 +1,6 @@
 package me.eater.emo.aardvark.fragments
 
 import javafx.geometry.Pos
-import javafx.scene.text.TextAlignment
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.eater.emo.Account

@@ -1,6 +1,5 @@
 package me.eater.emo.aardvark.styles
 
-import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIconView
 import javafx.scene.text.Font
 

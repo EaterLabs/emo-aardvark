@@ -2,6 +2,7 @@ package me.eater.emo.aardvark.views
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import javafx.animation.Timeline
+import javafx.application.Platform
 import javafx.scene.control.Label
 import javafx.scene.layout.HBox
 import kotlinx.coroutines.Dispatchers
@@ -13,12 +14,16 @@ import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.f
 import me.eater.emo.aardvark.labelButton
 import me.eater.emo.aardvark.views.modpack.AddRepositoryView
+import me.eater.emo.aardvark.views.modpack.ModpackListingView
+import me.eater.emo.aardvark.views.modpack.RepositoryListingView
 import tornadofx.*
 
 class ModpacksView : View() {
     private val emoController: EmoController by inject()
 
     private val addRepositoryView: AddRepositoryView by inject()
+    private val repositoryListingView: RepositoryListingView by inject()
+    private val modpackListingView: ModpackListingView by inject()
 
     private var refreshIcon: Label by singleAssign()
     private var updateRepositoriesButton: HBox by singleAssign()
@@ -44,10 +49,25 @@ class ModpacksView : View() {
         top = hbox {
             addClass("actionbar")
 
+            labelButton {
+                f(FontAwesomeIcon.LIST_ALT, 14.0)
+                label("Show modpacks")
+
+                click {
+                    if (center != modpackListingView.root) {
+                        if (!Platform.isFxApplicationThread()) throw RuntimeException(":(")
+                        center.replaceWith(modpackListingView.root)
+                    }
+                }
+            }
 
             labelButton {
-                f(FontAwesomeIcon.PLUS, 14.0)
-                label("Add modpack")
+                f(FontAwesomeIcon.LIST, 14.0)
+                label("Show repositories")
+
+                click {
+                    center.replaceWith(repositoryListingView.root)
+                }
             }
 
             labelButton {
@@ -75,7 +95,7 @@ class ModpacksView : View() {
             }
         }
 
-        center = pane {}
+        center = modpackListingView.root
     }
 
     fun updateRepositories() {
