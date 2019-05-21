@@ -45,11 +45,25 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 }
             }
 
-            ".combo-box" {
+            ".combo-box, .combo-box-popup, .combo-box-base" {
+                backgroundRadius = box(0.px).m
                 backgroundColor = theme.background.m
+                backgroundInsets = box(0.px).m
+                padding = box(0.px)
+
+                "*" {
+                    backgroundRadius = box(0.px).m
+                }
 
                 ".virtual-flow, .clipped-container, .list-cell, .list-view, .arrow-button" {
+                    backgroundRadius = box(0.px).m
                     backgroundColor = theme.background.m
+                    backgroundInsets = box(0.px).m
+                    cursor = OPEN_HAND
+                }
+
+                ".list-view" {
+                    padding = box(0.px)
                 }
 
                 ".list-cell:hover:filled" {
@@ -57,6 +71,8 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 }
 
                 ".arrow-button" {
+                    padding = box(5.px)
+
                     ".arrow" {
                         backgroundColor = theme.foreground.m
                     }
@@ -70,11 +86,18 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                     fontSize = 16.px
 
                     ".list-cell" {
-                        alignment = Pos.CENTER_LEFT
+                        alignment = Pos.BASELINE_LEFT
+                    }
+
+                    ".text" {
+                        unsafe("-fx-bounds-type", TextBoundsType.VISUAL.name)
+                        font = Fonts.minecraftia
+                        fontSize = 16.px
                     }
 
                     ".arrow-button" {
                         backgroundColor = theme.background.darker().m
+                        padding = box(horizontal = 10.px)
                     }
                 }
             }
@@ -94,7 +117,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                     }
                 }
 
-                ".combo-box" {
+                ".combo-box, .combo-box-popup, .combo-box-base" {
                     backgroundRadius = box(0.px).m
                     backgroundColor = it.color.m
                     backgroundInsets = box(0.px).m
