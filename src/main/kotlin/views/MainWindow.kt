@@ -10,19 +10,25 @@ import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
+import me.eater.emo.Account
 import me.eater.emo.aardvark.click
 import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.map
+import me.eater.emo.aardvark.prop
 import me.eater.emo.aardvark.styles.Icons
 import tornadofx.*
 import java.nio.file.*
 
-class MainWindow : View("emo — Eater's Mod Manager") {
+class MainWindow : View("Aardvark — A Minecraft modpack manager") {
     private val emoController: EmoController by inject()
 
     private val accountsView: AccountsView by inject()
     private val profilesView: ProfilesView by inject()
     private val modpacksView: ModpacksView by inject()
+
+    lateinit var modpacksTab: VBox
+    lateinit var profilesTab: VBox
+    lateinit var accountsTab: VBox
 
     override fun onBeforeShow() {
         primaryStage.minWidth = 800.0
@@ -59,9 +65,7 @@ class MainWindow : View("emo — Eater's Mod Manager") {
                     label(text)
 
                     click {
-                        this@borderpane.selectAll<Node>(CssRule.c("main-button-label"))
-                            .forEach { node: Node -> node.removeClass("current") }
-
+                        cleanCurrent()
                         addClass("current")
                         center.replaceWith(view)
                     }
@@ -107,11 +111,63 @@ class MainWindow : View("emo — Eater's Mod Manager") {
                     }
                 }
 
-                menuButton("profiles-tab", "Profiles", profilesView.root)
-                menuButton("modpacks-tab", "Modpacks", modpacksView.root)
-                menuButton("accounts-tab", "Accounts", accountsView.root)
+                profilesTab = menuButton("profiles-tab", "Profiles", profilesView.root)
+                modpacksTab = menuButton("modpacks-tab", "Modpacks", modpacksView.root)
+                accountsTab = menuButton("accounts-tab", "Accounts", accountsView.root)
+
+                hbox { hgrow = Priority.ALWAYS }
+
+                vbox comboContainer@{
+                    addClass("account-selector-container")
+
+                    combobox<Account> {
+                        vgrow = Priority.ALWAYS
+
+                        prefHeightProperty().bind(this@comboContainer.layoutBoundsProperty().map {
+                            it.height
+                        })
+
+                        addClass("account-selector")
+                        items.bind(emoController.accounts) { it }
+
+                        emoController::account.prop().onChange {
+                            selectionModel.select(it)
+                        }
+
+                        selectionModel.selectedItemProperty().onChange {
+                            emoController.account = it
+                        }
+
+                        cellFormat {
+                            text = it.displayName
+                        }
+                    }
+                }
             }
         }
+    }
+
+    private fun cleanCurrent() {
+        root.selectAll<Node>(CssRule.c("main-button-label").and(CssRule.c("current")))
+            .forEach { node: Node -> node.removeClass("current") }
+    }
+
+    fun selectProfiles() {
+        cleanCurrent()
+        profilesTab.addClass("current")
+        root.center.replaceWith(profilesView.root)
+    }
+
+    fun selectModpacks() {
+        cleanCurrent()
+        modpacksTab.addClass("current")
+        root.center.replaceWith(modpacksView.root)
+    }
+
+    fun selectAccounts() {
+        cleanCurrent()
+        accountsTab.addClass("current")
+        root.center.replaceWith(accountsView.root)
     }
 
     init {
@@ -144,7 +200,7 @@ class MainWindow : View("emo — Eater's Mod Manager") {
         GlobalScope.launch {
             while (true) {
                 loop@ for (event in key.pollEvents()) {
-                    when  {
+                    when {
                         event.kind() == StandardWatchEventKinds.OVERFLOW -> continue@loop
                         event.context() is Path -> {
                             val path: Path = event.context() as Path

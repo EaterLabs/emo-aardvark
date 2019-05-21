@@ -82,10 +82,12 @@ class AddRepositoryView : View() {
             val newSlot = when (it) {
                 null -> vbox()
                 else -> find(
-                    RepositoryFragment::class, "repositoryCache" to RepositoryCache.fromRepository(
+                    RepositoryFragment::class,
+                    "repositoryCache" to RepositoryCache.fromRepository(
                         RepositoryDefinition(RepositoryType.Remote, url),
                         it
-                    )
+                    ),
+                    "showRemove" to false
                 ).root
             }
 
@@ -107,7 +109,7 @@ class AddRepositoryView : View() {
                 downloadLock.lock()
             }.await()
 
-            var repo: Repository? = null
+            var repo: Repository?
 
             try {
                 repo = Repository.fromJson(

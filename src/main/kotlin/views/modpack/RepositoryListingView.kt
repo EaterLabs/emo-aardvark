@@ -9,11 +9,14 @@ import tornadofx.addClass
 import tornadofx.find
 
 class RepositoryListingView : Listing<RepositoryCache>(find(EmoController::class).repositories) {
+    override val noItemsText: String
+        get() = "No repositories configured"
+
     override fun render(item: RepositoryCache): Node {
         return find(RepositoryFragment::class, "repositoryCache" to item).root
     }
 
     init {
-        listingView.addClass("repository-listing")
+        addClass("repository-listing")
     }
 }

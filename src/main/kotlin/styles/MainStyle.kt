@@ -38,7 +38,47 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
     }
 
     init {
-        mainWindow {
+        ".main-window, .window" {
+            labelButton {
+                and(hover) {
+                    backgroundColor = theme.background.darker().m
+                }
+            }
+
+            ".combo-box" {
+                backgroundColor = theme.background.m
+
+                ".virtual-flow, .clipped-container, .list-cell, .list-view, .arrow-button" {
+                    backgroundColor = theme.background.m
+                }
+
+                ".list-cell:hover:filled" {
+                    backgroundColor = theme.background.darker().darker().m
+                }
+
+                ".arrow-button" {
+                    ".arrow" {
+                        backgroundColor = theme.foreground.m
+                    }
+                }
+            }
+
+            ".tab-bar .account-selector-container" {
+                alignment = Pos.CENTER_RIGHT
+
+                ".account-selector" {
+                    fontSize = 16.px
+
+                    ".list-cell" {
+                        alignment = Pos.CENTER_LEFT
+                    }
+
+                    ".arrow-button" {
+                        backgroundColor = theme.background.darker().m
+                    }
+                }
+            }
+
             withStyle {
                 s(actionbar, bigAccount, labelButton, textField) {
                     backgroundColor = it.color.m
@@ -54,6 +94,44 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                     }
                 }
 
+                ".combo-box" {
+                    backgroundRadius = box(0.px).m
+                    backgroundColor = it.color.m
+                    backgroundInsets = box(0.px).m
+                    padding = box(0.px)
+
+                    "*" {
+                        backgroundRadius = box(0.px).m
+                    }
+
+                    ".virtual-flow, .clipped-container, .list-cell, .list-view, .arrow-button" {
+                        backgroundRadius = box(0.px).m
+                        backgroundColor = it.color.m
+                        backgroundInsets = box(0.px).m
+                        cursor = OPEN_HAND
+                    }
+
+                    ".list-view" {
+                        padding = box(0.px)
+                    }
+
+                    ".list-cell:hover:filled" {
+                        backgroundColor = it.color.darker().darker().m
+                    }
+
+                    ".arrow-button" {
+                        padding = box(5.px)
+
+                        ".arrow" {
+                            backgroundColor = theme.foreground.m
+                        }
+                    }
+
+                    ".new-profile-button" {
+                        fontSize = 15.px
+                    }
+                }
+
                 button {
                     backgroundColor = it.color.darker().m
 
@@ -66,9 +144,57 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                     backgroundColor = it.color.m
                     maxWidth = 600.px
                 }
+
+                ".wide .form" {
+                    maxWidth = 800.px
+                }
+
+                ".repository-fragment, .modpack-fragment, .profile-fragment" {
+                    padding = box(5.px)
+                    backgroundColor = it.color.darker().m
+
+                    ".repository-description, .modpack-description, .profile-location" {
+                        fontStyle = FontPosture.ITALIC
+                        fontSize = 12.px
+                    }
+
+                    ".repository-broken" {
+                        padding = box(5.px)
+                        backgroundColor = theme.error.m
+                    }
+                }
+
+                ".modpack-fragment" {
+                    labelButton {
+                        and(hover) {
+                            backgroundColor = it.color.darker().darker().m
+                        }
+                    }
+                }
+            }
+
+            ".top, .floating-window-content" {
+                backgroundColor = theme.background.m
+                padding = box(10.px)
             }
 
             backgroundColor = theme.background.m
+
+            ".installer-container" {
+                alignment = Pos.TOP_CENTER
+                fillWidth = false
+                padding = box(10.px)
+
+                ".installer-view" {
+                    minWidth = 500.px
+                    backgroundColor = theme.profiles.m
+                    padding = box(10.px)
+
+                    ".installer-title" {
+                        fontSize = 20.px
+                    }
+                }
+            }
 
             ".text, Text" {
                 fill = theme.foreground
@@ -260,67 +386,21 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 padding = box(5.px)
             }
 
-            ".repository-listing, .modpack-listing" {
+            ".repository-listing, .modpack-listing, .profile-listing" {
                 alignment = Pos.TOP_CENTER
 
-                ".repository-fragment, .modpack-fragment" {
+                and(".listing-empty") {
+                    padding = box(10.px)
+                }
+
+                ".repository-fragment, .modpack-fragment, .profile-fragment" {
                     maxWidth = 800.px
                 }
             }
 
-            ".repository-fragment, .modpack-fragment" {
-                padding = box(5.px)
-                backgroundColor = theme.modpacks.darker().m
-
-                ".repository-description, .modpack-description" {
-                    fontStyle = FontPosture.ITALIC
-                    fontSize = 12.px
-                }
-            }
-
-            ".modpack-fragment" {
-                ".combo-box" {
-                    backgroundRadius = box(0.px).m
-                    backgroundColor = theme.modpacks.m
-                    backgroundInsets = box(0.px).m
-                    padding = box(0.px)
-
-                    ".virtual-flow, .clipped-container, .list-cell, .list-view, .arrow-button" {
-                        backgroundRadius = box(0.px).m
-                        backgroundColor = theme.modpacks.m
-                        backgroundInsets = box(0.px).m
-                        cursor = OPEN_HAND
-                    }
-
-                    ".list-view" {
-                        padding = box(0.px)
-                    }
-
-                    ".list-cell:hover:filled" {
-                        backgroundColor = theme.modpacks.darker().darker().m
-                    }
-
-                    ".arrow-button" {
-                        padding = box(5.px)
-
-                        ".arrow" {
-                            backgroundColor = theme.foreground.m
-                        }
-                    }
-
-                    ".new-profile-button" {
-                        fontSize = 15.px
-                    }
-                }
-            }
-
-            "#modpacks-view" {
-                ".modpack-fragment" {
-                    labelButton {
-                        and(hover) {
-                            backgroundColor = theme.modpacks.darker().darker().m
-                        }
-                    }
+            ".confirmation-view" {
+                ".confirmation-buttons" {
+                    padding = box(top = 10.px)
                 }
             }
         }

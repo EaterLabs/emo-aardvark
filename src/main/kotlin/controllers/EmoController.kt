@@ -5,19 +5,27 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
-import me.eater.emo.Account
-import me.eater.emo.EmoInstance
+import me.eater.emo.*
+import me.eater.emo.Target
+import me.eater.emo.aardvark.fxprop
+import me.eater.emo.aardvark.prop
+import me.eater.emo.emo.Profile
 import me.eater.emo.emo.RepositoryDefinition
 import me.eater.emo.emo.RepositoryType
+import me.eater.emo.utils.ProcessStartedEvent
 import tornadofx.Controller
 import tornadofx.asObservable
+import tornadofx.onChange
+import java.nio.file.Paths
 
 class EmoController : Controller() {
     private val emo: EmoInstance = EmoInstance()
-    val accounts by lazy { emo.getAccounts().asObservable() }
-    val modpacks by lazy { emo.getModpacks().asObservable() }
+    val accounts by lazy { mutableListOf(*emo.getAccounts().toTypedArray()).asObservable() }
+    val modpacks by lazy { mutableMapOf(*emo.getModpacks().entries.map { it.key to it.value }.toTypedArray()).asObservable() }
     val modpacksList by lazy { modpacks.values.toMutableList().asObservable() }
     val repositories by lazy { getRepositoryCaches().asObservable() }
+    val profiles by lazy { mutableListOf(*emo.getProfiles().toTypedArray()).asObservable() }
+    var account: Account? by fxprop()
 
     suspend fun logIn(username: String, password: String): Account =
         emo.accountLogIn(username, password).also {
@@ -38,8 +46,16 @@ class EmoController : Controller() {
         accounts.setAll(emo.getAccounts())
     }
 
+    fun updateProfiles() = fx {
+        profiles.setAll(emo.getProfiles())
+    }
+
     suspend fun updateRepositories() {
-        emo.updateRepositories()
+        try {
+            emo.updateRepositories()
+        } catch (t: Throwable) {
+            t.printStackTrace()
+        }
         updateRepositoryObservers()
         emo.saveModpackCollectionCache()
     }
@@ -87,9 +103,61 @@ class EmoController : Controller() {
     fun getRepository(repository: String) =
         emo.getRepository(repository)
 
+    fun removeRepository(definition: RepositoryDefinition) {
+        emo.removeRepository(definition)
+        GlobalScope.launch {
+            updateRepositories()
+        }
+    }
+
+    fun getProfilesDir(): String =
+        emo.getDataDir() + "/profiles/"
+
+    suspend fun startInstall(emoContext: EmoContext, stateStart: suspend (ProcessStartedEvent<EmoContext>) -> Unit) =
+        emo.runInstall(emoContext, stateStart)
+
+    fun getEmoContext(job: InstallerController.Job): EmoContext = with(job) {
+        EmoContext(
+            installLocation = Paths.get(location),
+            forgeVersion = VersionSelector.fromStringOrNull(modpackVersion.forge),
+            minecraftVersion = VersionSelector(modpackVersion.minecraft),
+            name = name,
+            modpackVersion = modpackVersion,
+            modpack = modpackCache.modpack.withoutVersions(),
+            target = Target.Client,
+            mods = modpackVersion.mods,
+            instance = emo
+        )
+    }
+
+    fun play(profile: Profile): Process {
+        return emo.getMinecraftExecutor(
+            profile,
+            account ?: throw RuntimeException("Please select an account before start a profile")
+        )
+            .execute()
+    }
+
+
     init {
         GlobalScope.launch {
             emo.loadModpackCollectionCache()
+
+            val uuid = emo.useSettings(true) {
+                it.selectedAccount
+            }
+
+            ::account.prop().onChange { acc ->
+                if (acc == null) return@onChange
+
+                emo.useSettings {
+                    it.selectAccount(acc.uuid)
+                }
+            }
+
+            account = emo.getAccounts().find {
+                it.uuid == uuid
+            }
         }
     }
 }

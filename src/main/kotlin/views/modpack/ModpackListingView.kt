@@ -9,9 +9,12 @@ import tornadofx.addClass
 import tornadofx.find
 
 class ModpackListingView : Listing<ModpackCache>(find(EmoController::class).modpacksList) {
+    override val noItemsText: String
+        get() = "No modpacks found"
+
     override fun render(item: ModpackCache): Node = find(ModpackFragment::class, "modpackCache" to item).root
 
     init {
-        listingView.addClass("modpack-listing")
+        addClass("modpack-listing")
     }
 }

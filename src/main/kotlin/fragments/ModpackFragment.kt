@@ -10,6 +10,9 @@ import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.f
 import me.eater.emo.aardvark.labelButton
 import me.eater.emo.aardvark.map
+import me.eater.emo.aardvark.views.MainWindow
+import me.eater.emo.aardvark.views.ProfilesView
+import me.eater.emo.aardvark.views.profile.CreateProfileFromModpackView
 import me.eater.emo.emo.dto.repository.ModpackVersion
 import net.swiftzer.semver.SemVer
 import tornadofx.*
@@ -18,6 +21,8 @@ class ModpackFragment : Fragment() {
     private val emoController: EmoController by inject()
 
     private val modpackCache: ModpackCache by param()
+    private val forceVersion: ModpackVersion? by param()
+    private val noButtons: Boolean by param(false)
 
     private val modpack by lazy { modpackCache.modpack }
     private val repository by lazy { emoController.getRepository(modpackCache.repository) }
@@ -68,10 +73,12 @@ class ModpackFragment : Fragment() {
             }
         }
 
+
         hbox {
             alignment = Pos.BASELINE_LEFT
 
             label("Version: ")
+
 
             combobox<ModpackVersion> {
                 items.setAll(modpack.versions.values.sortedByDescending { SemVer.parse(it.version) })
@@ -81,13 +88,21 @@ class ModpackFragment : Fragment() {
                 cellFormat {
                     text = "${it.version} - ${it.minecraft}"
                 }
+
+                isDisable = noButtons
+
+                if (forceVersion !== null) {
+                    selectionModel.select(forceVersion)
+                }
             }
+
 
             gridpaneConstraints {
                 rowIndex = 4
                 columnIndex = 2
             }
         }
+
 
         hbox {
             alignment = Pos.BASELINE_LEFT
@@ -113,21 +128,30 @@ class ModpackFragment : Fragment() {
             }
         }
 
-        hbox {
-            addClass("new-profile-button")
+        if (!noButtons) {
+            hbox {
+                addClass("new-profile-button")
 
-            alignment = Pos.BASELINE_CENTER
-
-            labelButton {
                 alignment = Pos.BASELINE_CENTER
 
-                hgrow = Priority.ALWAYS
-                label("New profile")
-            }
+                labelButton {
+                    alignment = Pos.BASELINE_CENTER
 
-            gridpaneConstraints {
-                rowIndex = 0
-                columnIndex = 2
+                    hgrow = Priority.ALWAYS
+                    label("New profile")
+                }
+
+                click {
+                    val profilesView = find<ProfilesView>()
+                    val mainWindow = find<MainWindow>()
+                    mainWindow.selectProfiles()
+                    profilesView.root.center.replaceWith(find<CreateProfileFromModpackView>("modpackCache" to modpackCache, "version" to version).root)
+                }
+
+                gridpaneConstraints {
+                    rowIndex = 0
+                    columnIndex = 2
+                }
             }
         }
 
@@ -144,6 +168,8 @@ class ModpackFragment : Fragment() {
                     click {
                         hostServices.showDocument(link)
                     }
+
+                    tooltip(link)
                 }
             }
 
@@ -155,6 +181,8 @@ class ModpackFragment : Fragment() {
                     click {
                         hostServices.showDocument(link)
                     }
+
+                    tooltip(link)
                 }
             }
 

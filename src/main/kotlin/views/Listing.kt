@@ -52,6 +52,11 @@ abstract class Listing<T>(private val items: ObservableList<T>) : View() {
         }
     }
 
+    fun addClass(vararg classes: String) {
+        listingView.addClass(*classes)
+        noItemsView.addClass(*classes)
+    }
+
     init {
         items.onChange {
             if (!Platform.isFxApplicationThread()) throw RuntimeException(":(")
