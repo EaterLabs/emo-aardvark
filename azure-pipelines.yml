@@ -23,4 +23,5 @@ steps:
     tasks: 'runtimeZip'
 - task: PublishBuildArtifacts@1
   inputs:
-    PathtoPublish: 'build/image.zip'
+    PathtoPublish: 'build/aardvark.zip'
+    artifactName: 'aardvark'
