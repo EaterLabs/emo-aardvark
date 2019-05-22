@@ -172,53 +172,57 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
 
     init {
         val liveCss = Paths.get("cheats")
-        val watchService = FileSystems.getDefault().newWatchService()
-        val key = liveCss.register(
-            watchService,
-            StandardWatchEventKinds.ENTRY_CREATE,
-            StandardWatchEventKinds.ENTRY_MODIFY,
-            StandardWatchEventKinds.ENTRY_DELETE
-        )
 
-        fun removeCheatCSS(path: String) {
-            primaryStage.scene.stylesheets.removeIf {
-                it == path
+        if (Files.exists(liveCss)) {
+
+            val watchService = FileSystems.getDefault().newWatchService()
+            val key = liveCss.register(
+                watchService,
+                StandardWatchEventKinds.ENTRY_CREATE,
+                StandardWatchEventKinds.ENTRY_MODIFY,
+                StandardWatchEventKinds.ENTRY_DELETE
+            )
+
+            fun removeCheatCSS(path: String) {
+                primaryStage.scene.stylesheets.removeIf {
+                    it == path
+                }
             }
-        }
 
-        fun updateCheatCSS(path: String) {
-            removeCheatCSS(path)
-            primaryStage.scene.stylesheets.add(path)
-        }
-
-        primaryStage.sceneProperty().onChangeOnce {
-            if (Files.exists(Paths.get(liveCss.toString(), "live.css"))) {
-                updateCheatCSS("file:" + Paths.get(liveCss.toString(), "live.css").toAbsolutePath().toString())
+            fun updateCheatCSS(path: String) {
+                removeCheatCSS(path)
+                primaryStage.scene.stylesheets.add(path)
             }
-        }
 
-        GlobalScope.launch {
-            while (true) {
-                loop@ for (event in key.pollEvents()) {
-                    when {
-                        event.kind() == StandardWatchEventKinds.OVERFLOW -> continue@loop
-                        event.context() is Path -> {
-                            val path: Path = event.context() as Path
-                            if (path.endsWith("live.css")) {
-                                val absolute = "file:" + liveCss.resolve(path).toAbsolutePath().toString()
+            primaryStage.sceneProperty().onChangeOnce {
+                if (Files.exists(Paths.get(liveCss.toString(), "live.css"))) {
+                    updateCheatCSS("file:" + Paths.get(liveCss.toString(), "live.css").toAbsolutePath().toString())
+                }
+            }
 
-                                launch(Dispatchers.JavaFx) {
-                                    when (event.kind()) {
-                                        StandardWatchEventKinds.ENTRY_DELETE -> removeCheatCSS(absolute)
-                                        else -> updateCheatCSS(absolute)
+            GlobalScope.launch {
+                while (true) {
+                    loop@ for (event in key.pollEvents()) {
+                        when {
+                            event.kind() == StandardWatchEventKinds.OVERFLOW -> continue@loop
+                            event.context() is Path -> {
+                                val path: Path = event.context() as Path
+                                if (path.endsWith("live.css")) {
+                                    val absolute = "file:" + liveCss.resolve(path).toAbsolutePath().toString()
+
+                                    launch(Dispatchers.JavaFx) {
+                                        when (event.kind()) {
+                                            StandardWatchEventKinds.ENTRY_DELETE -> removeCheatCSS(absolute)
+                                            else -> updateCheatCSS(absolute)
+                                        }
                                     }
                                 }
                             }
                         }
                     }
-                }
 
-                delay(200)
+                    delay(200)
+                }
             }
         }
     }
