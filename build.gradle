@@ -8,6 +8,8 @@ plugins {
 group 'me.eater.emo'
 version '1.0-SNAPSHOT'
 
+ext.fuel_version = '2.0.1'
+
 repositories {
     mavenCentral()
     jcenter()
@@ -24,7 +26,11 @@ dependencies {
     implementation "no.tornado:tornadofx:1.7.19"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.2.1'
+    implementation "com.github.kittinunf.fuel:fuel:${fuel_version}"
+    implementation "com.github.kittinunf.fuel:fuel-coroutines:${fuel_version}"
     implementation 'de.jensd:fontawesomefx-fontawesome:4.7.0-5'
+    implementation 'de.jensd:fontawesomefx-commons:8.15'
+    implementation 'net.swiftzer.semver:semver:1.0.0'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
 }
@@ -45,5 +51,17 @@ javafx {
 }
 
 runtime {
+    imageDir = file("$buildDir/image/aardvark")
+    imageZip = file("$buildDir/aardvark.zip")
+
     addOptions('--strip-debug', '--compress', '2', '--no-header-files', '--no-man-pages')
+    addModules('java.desktop',
+            'java.logging',
+            'java.prefs',
+            'java.sql',
+            'java.naming',
+            'jdk.jfr',
+            'java.scripting',
+            'java.xml',
+            'jdk.unsupported')
 }
