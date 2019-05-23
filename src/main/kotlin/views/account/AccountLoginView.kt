@@ -102,13 +102,13 @@ class AccountLoginView : View() {
         this@AccountLoginView.password = ""
 
         GlobalScope.launch {
-            val result = runCatching {
+            val loginResult = runCatching {
                 emoController.logIn(username, password)
             }
 
             launch(Dispatchers.JavaFx) ui@{
-                if (result.isFailure) {
-                    errorLabel.text = result.exceptionOrNull()!!.message
+                if (loginResult.isFailure) {
+                    errorLabel.text = loginResult.exceptionOrNull()!!.message
                     hasError = true
                     passwordField.requestFocus()
 

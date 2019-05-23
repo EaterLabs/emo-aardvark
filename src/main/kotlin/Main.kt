@@ -1,5 +1,6 @@
 package me.eater.emo.aardvark
 
+import me.eater.emo.EmoEnvironment
 import org.bouncycastle.jce.provider.BouncyCastleProvider
 import sun.misc.Unsafe
 import sun.net.www.protocol.css.Handler
@@ -30,9 +31,11 @@ class Main {
             // All popup menu offsets will be wrong. so force it to 2
             System.setProperty("jdk.gtk.version", "2")
 
-            // To make text look crispy
-            System.setProperty("prism.lcdtext", "false")
-            System.setProperty("prism.text", "t2k")
+            if (EmoEnvironment().osName == "linux") {
+                // To make text look crispy
+                System.setProperty("prism.lcdtext", "false")
+                System.setProperty("prism.text", "t2k")
+            }
 
             launch<AardvarkApp>()
         }

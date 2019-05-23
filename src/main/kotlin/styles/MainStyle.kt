@@ -1,7 +1,7 @@
 package me.eater.emo.aardvark.styles
 
 import javafx.geometry.Pos
-import javafx.scene.Cursor.OPEN_HAND
+import javafx.scene.Cursor.HAND
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.text.FontPosture
@@ -39,6 +39,10 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
     }
 
     init {
+        ".font-awesome" {
+            fontFamily = "FontAwesome"
+        }
+
         ".main-window, .window" {
             labelButton {
                 and(hover) {
@@ -60,7 +64,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                     backgroundRadius = box(0.px).m
                     backgroundColor = theme.background.m
                     backgroundInsets = box(0.px).m
-                    cursor = OPEN_HAND
+                    cursor = HAND
                 }
 
                 ".list-view" {
@@ -139,7 +143,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                         backgroundRadius = box(0.px).m
                         backgroundColor = it.color.m
                         backgroundInsets = box(0.px).m
-                        cursor = OPEN_HAND
+                        cursor = HAND
                     }
 
                     ".list-view" {
@@ -384,7 +388,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
             mainButtonLabel {
                 font = Fonts.minecraftia
                 alignment = Pos.BASELINE_LEFT
-                cursor = OPEN_HAND
+                cursor = HAND
                 padding = box(all = 10.px, bottom = 5.px)
 
                 label {
@@ -437,7 +441,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
 
             labelButton {
                 padding = box(5.px)
-                cursor = OPEN_HAND
+                cursor = HAND
             }
 
             accountsView {
@@ -477,7 +481,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 borderRadius = multi(box(0.px))
                 padding = box(10.px)
                 textFill = theme.light
-                cursor = OPEN_HAND
+                cursor = HAND
             }
 
             textField {

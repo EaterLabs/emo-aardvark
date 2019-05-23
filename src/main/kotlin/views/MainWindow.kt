@@ -214,7 +214,7 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
 
             primaryStage.sceneProperty().onChangeOnce {
                 if (Files.exists(Paths.get(liveCss.toString(), "live.css"))) {
-                    updateCheatCSS("file:" + Paths.get(liveCss.toString(), "live.css").toAbsolutePath().toString())
+                    updateCheatCSS(Paths.get(liveCss.toString(), "live.css").toAbsolutePath().toUri().toString())
                 }
             }
 
@@ -226,7 +226,7 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
                             event.context() is Path -> {
                                 val path: Path = event.context() as Path
                                 if (path.endsWith("live.css")) {
-                                    val absolute = "file:" + liveCss.resolve(path).toAbsolutePath().toString()
+                                    val absolute = liveCss.resolve(path).toAbsolutePath().toUri().toString()
 
                                     launch(Dispatchers.JavaFx) {
                                         when (event.kind()) {

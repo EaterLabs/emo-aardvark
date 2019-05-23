@@ -104,6 +104,7 @@ class ProfileFragment : Fragment() {
                     AardvarkController.ProfileState.Stopped-> GlobalScope.launch {
                         aardvarkController.play(profile)
                     }
+                    else -> {}
                 }
             }
 

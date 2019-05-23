@@ -31,7 +31,7 @@ class EmoController : Controller() {
     val profiles by lazy { mutableListOf(*emo.getProfiles().toTypedArray()).asObservable() }
     var account: Account? by fxprop()
 
-    private val processes: SimpleMapProperty<Profile, Process> = SimpleMapProperty(FXCollections.observableHashMap())
+    private val processes: SimpleMapProperty<String, Process> = SimpleMapProperty(FXCollections.observableHashMap())
 
     suspend fun logIn(username: String, password: String): Account =
         emo.accountLogIn(username, password).also {
@@ -155,19 +155,20 @@ class EmoController : Controller() {
 
         process.onExit().thenAccept {
             fx {
-                processes[profile] = null
+                processes[profile.location] = null
             }
         }
 
         fx {
-            processes[profile] = process
+            processes[profile.location] = process
         }
 
         return process
     }
 
     fun getProcessProperty(profile: Profile): ObjectBinding<Process?> {
-        return processes.valueAt(profile)
+        processes.putIfAbsent(profile.location, null)
+        return processes.valueAt(profile.location)
     }
 
     fun getDataDirectory(): String =

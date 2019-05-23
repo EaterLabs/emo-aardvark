@@ -106,7 +106,7 @@ class SettingsView : View() {
         javaStyle = style.style
         location = when (style) {
             is JavaStyle.System -> style.location
-            else -> System.getenv("JAVA_HOME")
+            else -> System.getenv("JAVA_HOME") ?: ""
         }
         implementation = when (style) {
             is JavaStyle.AdoptOpenJDK -> style.implementation

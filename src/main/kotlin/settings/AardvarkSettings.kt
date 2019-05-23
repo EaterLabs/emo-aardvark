@@ -95,7 +95,7 @@ sealed class JavaStyle {
 
     companion object {
         fun default(): JavaStyle =
-            if (MinecraftJDK.isAllowed())
+            if (!MinecraftJDK.isAllowed())
                 AdoptOpenJDK(AdoptOpenJDK.Implementation.HotSpot)
             else
                 MinecraftJDK

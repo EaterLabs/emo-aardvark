@@ -48,7 +48,7 @@ class AardvarkController : Controller() {
             _settings = value
         }
 
-    private val profiles: SimpleMapProperty<Profile, ProfileState> =
+    private val profiles: SimpleMapProperty<String, ProfileState> =
         SimpleMapProperty(FXCollections.observableHashMap())
     private val profileProcessWatchers: MutableSet<Profile> = mutableSetOf()
 
@@ -75,8 +75,8 @@ class AardvarkController : Controller() {
     }
 
     fun getProfileStateProperty(profile: Profile): ObservableValue<ProfileState> {
-        profiles.putIfAbsent(profile, ProfileState.Stopped)
-        return profiles.valueAt(profile)
+        profiles.putIfAbsent(profile.location, ProfileState.Stopped)
+        return profiles.valueAt(profile.location)
     }
 
 
@@ -86,7 +86,7 @@ class AardvarkController : Controller() {
 
     suspend fun play(profile: Profile) {
         GlobalScope.launch(Dispatchers.JavaFx) {
-            profiles[profile] = ProfileState.Preparing
+            profiles[profile.location] = ProfileState.Preparing
         }
 
         val launcherJson = File("${profile.location}/.emo/launcher.json")
@@ -109,24 +109,25 @@ class AardvarkController : Controller() {
         if (profile !in profileProcessWatchers) {
             profileProcessWatchers.add(profile)
             emoController.getProcessProperty(profile).onChange {
-                GlobalScope.launch(Dispatchers.JavaFx) {
-                    profiles[profile] = if (it == null || !it.isAlive)
-                        ProfileState.Stopped
-                    else
-                        ProfileState.Running
-                }
+                profiles[profile.location] = if (it == null || !it.isAlive)
+                    ProfileState.Stopped
+                else
+                    ProfileState.Running
             }
         }
 
         emoController.play(profile, defaultJava)
     }
 
+    private val java: String
+        get() = "java${if (EmoEnvironment().osName == "windows") ".exe" else ""}"
+
     private suspend fun checkAdoptOpenJDK(style: JavaStyle.AdoptOpenJDK): String {
         val aojdkFolder = "${emoController.getDataDirectory()}/jre/adoptopenjdk/${style.implementation.toJson()}"
         val versionFile = File("$aojdkFolder/version")
 
         if (versionFile.exists() && versionFile.lastModified() > (Instant.now().epochSecond - (7 * 24 * 60 * 60))) {
-            val javaExec = "$aojdkFolder/${versionFile.readText().trim()}/bin/java"
+            val javaExec = "$aojdkFolder/${versionFile.readText().trim()}/bin/$java"
             if (File(javaExec).exists()) {
                 return javaExec
             }
@@ -142,12 +143,12 @@ class AardvarkController : Controller() {
         val info = obj.binaries.first()
         val version = "jdk${info.versionData.openjdkVersion.split("_openj9").first()}-jre"
         val aojdkJRE = "$aojdkFolder/$version"
-        if (!File("$aojdkJRE/bin/java").exists()) {
+        if (!File("$aojdkJRE/bin/$java").exists()) {
             ExtractUtils.downloadAndExtractArchive(info.binaryLink, aojdkFolder)
         }
 
         versionFile.writeText(version)
-        return "$aojdkJRE/bin/java"
+        return "$aojdkJRE/bin/$java"
     }
 
     private suspend fun checkMinecraftJDK(): String {
@@ -155,7 +156,7 @@ class AardvarkController : Controller() {
         val versionFile = File("$minecraftJreFolder/version")
 
         if (versionFile.exists() && versionFile.lastModified() > (Instant.now().epochSecond - (7 * 24 * 60 * 60))) {
-            val javaExec = "$minecraftJreFolder/${versionFile.readText().trim()}/bin/java"
+            val javaExec = "$minecraftJreFolder/${versionFile.readText().trim()}/bin/$java"
             if (File(javaExec).exists()) {
                 return javaExec
             }
@@ -163,12 +164,12 @@ class AardvarkController : Controller() {
 
         val jre = emoController.getMinecraftJRE()!!
         val minecraftJRE = "$minecraftJreFolder/${jre.version!!}"
-        if (!File("$minecraftJRE/bin/java").exists()) {
+        if (!File("$minecraftJRE/bin/$java").exists()) {
             JreUtil.downloadJRE(jre, minecraftJRE)
         }
 
         versionFile.writeText("${jre.version}")
-        return "$minecraftJRE/bin/java"
+        return "$minecraftJRE/bin/$java"
     }
 
     private fun tryLoadSettings(): AardvarkSettings =
