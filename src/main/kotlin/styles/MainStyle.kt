@@ -5,8 +5,9 @@ import javafx.scene.Cursor.OPEN_HAND
 import javafx.scene.layout.BorderStrokeStyle
 import javafx.scene.paint.Color
 import javafx.scene.text.FontPosture
+import javafx.scene.text.FontWeight
 import javafx.scene.text.TextBoundsType
-import me.eater.emo.aardvark.box
+import me.eater.emo.aardvark.utils.box
 import tornadofx.*
 
 class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
@@ -81,6 +82,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
 
             ".tab-bar .account-selector-container" {
                 alignment = Pos.CENTER_RIGHT
+                padding = box(bottom = (-5).px, top = 5.px)
 
                 ".account-selector" {
                     fontSize = 16.px
@@ -105,6 +107,12 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
             withStyle {
                 s(actionbar, bigAccount, labelButton, textField) {
                     backgroundColor = it.color.m
+                }
+
+                actionbar {
+                    child(label) {
+                        padding = box(5.px)
+                    }
                 }
 
                 textField {
@@ -166,6 +174,12 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 ".form" {
                     backgroundColor = it.color.m
                     maxWidth = 600.px
+
+                    ".form-title" {
+                        fontSize = 20.px
+                        fontWeight = FontWeight.BOLD
+                        padding = box(bottom = 10.px)
+                    }
                 }
 
                 ".wide .form" {
@@ -194,6 +208,16 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                         }
                     }
                 }
+
+                ".installer-view .installer-buttons" {
+                    labelButton {
+                        backgroundColor = it.color.darker().m
+
+                        and(":hover") {
+                            backgroundColor = it.color.darker().darker().m
+                        }
+                    }
+                }
             }
 
             ".top, .floating-window-content" {
@@ -211,10 +235,41 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 ".installer-view" {
                     minWidth = 500.px
                     backgroundColor = theme.profiles.m
-                    padding = box(10.px)
 
                     ".installer-title" {
                         fontSize = 20.px
+                        padding = box(10.px)
+                    }
+
+                    ".installer-steps" {
+                        backgroundColor = theme.profiles.m
+                        padding = box(10.px)
+                    }
+
+                    ".installer-error" {
+                        backgroundColor = theme.error.darker().m
+                        padding = box(10.px)
+
+                        ".installer-error-title" {
+                            fontSize = 20.px
+                            fontWeight = FontWeight.BOLD
+                            padding = box(bottom = 20.px)
+                        }
+
+                        ".installer-error-stacktrace" {
+                            minHeight = 300.px
+                        }
+                    }
+
+                    ".installer-buttons-container" {
+                        padding = box(10.px)
+                        backgroundColor = theme.profiles.m
+
+                        ".installer-buttons" {
+                            fontSize = 16.px
+                            alignment = Pos.BASELINE_RIGHT
+                            spacing = 5.px
+                        }
                     }
                 }
             }
@@ -230,7 +285,11 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
 
 
             ".scroll-pane" {
-                padding = box(10.px)
+                and(".listing-scrollpane") {
+                    padding = box(10.px)
+                }
+
+                padding = box(0.px)
 
                 ".scroll-bar" {
                     padding = box(0.px)
@@ -243,10 +302,19 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                             backgroundColor = theme.background.darker().m
                         }
                     }
+
+                    and(":vertical .thumb") {
+                        backgroundInsets = multi(box(0.px), box(vertical = 10.px))
+                    }
+
+                    and(":horizontal .thumb") {
+                        backgroundInsets = multi(box(0.px), box(horizontal = 10.px))
+                    }
                 }
 
                 "StackPane, .viewport" {
                     backgroundColor = theme.background.m
+                    padding = box(0.px)
                 }
 
                 ".listing-filled" {
@@ -261,7 +329,7 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
                 ".thumb" {
                     borderWidth = box(0.px).m
                     backgroundColor = multi(theme.background.darker(), theme.background.brighter())
-                    backgroundInsets = multi(box(0.px), box(vertical = 10.px))
+
                     backgroundRadius = box(0.px).m
                 }
 
@@ -273,6 +341,22 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
 
                 s(vbox) {
                     alignment = Pos.BASELINE_LEFT
+                }
+
+                ".settings-menu-button" {
+                    padding = box(horizontal = 10.px, bottom = (-10).px)
+                    fillHeight = true
+                    alignment = Pos.CENTER
+
+                    backgroundColor = theme.background.darker().m
+
+                    and(":hover") {
+                        backgroundColor = theme.background.darker().darker().m
+                    }
+
+                    and(".current") {
+                        backgroundColor = theme.background.brighter().m
+                    }
                 }
             }
 
@@ -439,6 +523,10 @@ class MainStyle(private val theme: Colors = Colors()) : Stylesheet() {
         }
         modpacksView {
             block(Style(theme.modpacks, "modpacks"))
+        }
+
+        "#settings-view" {
+            block(Style(theme.background.brighter(), "settings"))
         }
     }
 

@@ -2,14 +2,13 @@ package me.eater.emo.aardvark.views.profile
 
 import javafx.stage.DirectoryChooser
 import me.eater.emo.ModpackCache
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.controllers.InstallerController
 import me.eater.emo.aardvark.fragments.ModpackFragment
-import me.eater.emo.aardvark.fxprop
-import me.eater.emo.aardvark.prop
+import me.eater.emo.aardvark.utils.fxprop
+import me.eater.emo.aardvark.utils.prop
 import me.eater.emo.aardvark.views.MainWindow
-import me.eater.emo.aardvark.views.modpack.InstallerView
 import me.eater.emo.emo.dto.repository.ModpackVersion
 import tornadofx.*
 import java.io.File

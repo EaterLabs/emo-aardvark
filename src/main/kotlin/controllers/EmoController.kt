@@ -1,5 +1,8 @@
 package me.eater.emo.aardvark.controllers
 
+import javafx.beans.binding.ObjectBinding
+import javafx.beans.property.SimpleMapProperty
+import javafx.collections.FXCollections
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -7,8 +10,8 @@ import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import me.eater.emo.*
 import me.eater.emo.Target
-import me.eater.emo.aardvark.fxprop
-import me.eater.emo.aardvark.prop
+import me.eater.emo.aardvark.utils.fxprop
+import me.eater.emo.aardvark.utils.prop
 import me.eater.emo.emo.Profile
 import me.eater.emo.emo.RepositoryDefinition
 import me.eater.emo.emo.RepositoryType
@@ -17,6 +20,7 @@ import tornadofx.Controller
 import tornadofx.asObservable
 import tornadofx.onChange
 import java.nio.file.Paths
+import java.time.Instant
 
 class EmoController : Controller() {
     private val emo: EmoInstance = EmoInstance()
@@ -26,6 +30,8 @@ class EmoController : Controller() {
     val repositories by lazy { getRepositoryCaches().asObservable() }
     val profiles by lazy { mutableListOf(*emo.getProfiles().toTypedArray()).asObservable() }
     var account: Account? by fxprop()
+
+    private val processes: SimpleMapProperty<Profile, Process> = SimpleMapProperty(FXCollections.observableHashMap())
 
     suspend fun logIn(username: String, password: String): Account =
         emo.accountLogIn(username, password).also {
@@ -56,6 +62,7 @@ class EmoController : Controller() {
         } catch (t: Throwable) {
             t.printStackTrace()
         }
+
         updateRepositoryObservers()
         emo.saveModpackCollectionCache()
     }
@@ -130,13 +137,44 @@ class EmoController : Controller() {
         )
     }
 
-    fun play(profile: Profile): Process {
-        return emo.getMinecraftExecutor(
+    fun play(profile: Profile, java: String? = null): Process {
+        emo.useSettings {
+            profile.lastTouched = Instant.now()
+        }
+
+        fx {
+            profiles[profiles.indexOf(profile)] = profile
+        }
+
+        val process = emo.getMinecraftExecutor(
             profile,
-            account ?: throw RuntimeException("Please select an account before start a profile")
+            account ?: throw RuntimeException("Please select an account before start a profile"),
+            java ?: "java"
         )
             .execute()
+
+        process.onExit().thenAccept {
+            fx {
+                processes[profile] = null
+            }
+        }
+
+        fx {
+            processes[profile] = process
+        }
+
+        return process
     }
+
+    fun getProcessProperty(profile: Profile): ObjectBinding<Process?> {
+        return processes.valueAt(profile)
+    }
+
+    fun getDataDirectory(): String =
+        emo.getDataDir()
+
+    suspend fun getMinecraftJRE() =
+        emo.getAvailableJRE()
 
 
     init {

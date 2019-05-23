@@ -9,10 +9,10 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
-import me.eater.emo.aardvark.f
-import me.eater.emo.aardvark.labelButton
+import me.eater.emo.aardvark.utils.f
+import me.eater.emo.aardvark.utils.labelButton
 import me.eater.emo.aardvark.views.modpack.AddRepositoryView
 import me.eater.emo.aardvark.views.modpack.ModpackListingView
 import me.eater.emo.aardvark.views.modpack.RepositoryListingView

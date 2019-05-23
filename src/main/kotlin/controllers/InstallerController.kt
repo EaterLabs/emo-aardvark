@@ -1,7 +1,6 @@
 package me.eater.emo.aardvark.controllers
 
 import com.github.kittinunf.fuel.core.FuelError
-import javafx.beans.property.SimpleListProperty
 import javafx.collections.FXCollections
 import javafx.collections.ObservableList
 import kotlinx.coroutines.Dispatchers
@@ -10,11 +9,11 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import me.eater.emo.ModpackCache
-import me.eater.emo.aardvark.AutoObserver
-import me.eater.emo.aardvark.fxprop
+import me.eater.emo.aardvark.utils.AutoObserver
+import me.eater.emo.aardvark.utils.fxprop
+import me.eater.emo.emo.Profile
 import me.eater.emo.emo.dto.repository.ModpackVersion
 import tornadofx.Controller
-import tornadofx.listProperty
 
 class InstallerController : Controller() {
     private val emoController: EmoController by inject()
@@ -41,7 +40,8 @@ class InstallerController : Controller() {
             var lastTask: Task? = null
 
             val result = try {
-                emoController.startInstall(emoController.getEmoContext(job)) {
+                val context = emoController.getEmoContext(job)
+                emoController.startInstall(context) {
                     lastTask?.let { task -> task.state = Task.TaskState.Done }
                     lastTask = Task(it.description, Task.TaskState.Running)
                     ch.send(lastTask!!)
@@ -50,15 +50,14 @@ class InstallerController : Controller() {
                 ch.close()
                 lastTask?.let { task -> task.state = Task.TaskState.Done }
                 emoController.updateProfiles()
-
-                State.Done(job)
+                State.Done(job, context.profile!!)
             } catch (t: Throwable) {
                 lastTask?.let { task -> task.state = Task.TaskState.Error(t) }
                 if (t is FuelError) {
                     println("Error for ${t.response.url}")
                 }
                 t.printStackTrace()
-                State.Error(t, job)
+                State.Error(job, t)
             }
 
             synchronized(state) {
@@ -97,9 +96,10 @@ class InstallerController : Controller() {
         object Idle : State()
         open class WithJob protected constructor(val job: Job) : State()
         class Running(job: Job) : WithJob(job)
-        class Done(job: Job) : WithJob(job)
-        class Error(val t: Throwable, job: Job) : WithJob(job)
+        class Done(job: Job, val profile: Profile) : WithJob(job)
+        class Error(job: Job, val t: Throwable) : WithJob(job)
 
         fun canStart() = this !is Running
+        fun hasFailed() = this is Error
     }
 }

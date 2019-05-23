@@ -6,7 +6,7 @@ import me.eater.emo.aardvark.views.Listing
 import me.eater.emo.emo.Profile
 import tornadofx.find
 
-class ProfileListingView : Listing<Profile>(find(EmoController::class).profiles) {
+class ProfileListingView : Listing<Profile>(find(EmoController::class).profiles.sorted { o1, o2 -> -o1.lastTouched.compareTo(o2.lastTouched) }) {
     override val noItemsText: String
         get() = "No profiles created yet"
 

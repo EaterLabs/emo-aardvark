@@ -5,10 +5,10 @@ import javafx.geometry.Pos
 import javafx.scene.layout.Priority
 import javafx.scene.text.FontPosture
 import me.eater.emo.RepositoryCache
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
-import me.eater.emo.aardvark.f
-import me.eater.emo.aardvark.labelButton
+import me.eater.emo.aardvark.utils.f
+import me.eater.emo.aardvark.utils.labelButton
 import me.eater.emo.aardvark.views.ConfirmationView
 import me.eater.emo.aardvark.views.MainWindow
 import me.eater.emo.aardvark.views.ModpacksView

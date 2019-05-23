@@ -4,9 +4,9 @@ import javafx.geometry.Pos
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import me.eater.emo.Account
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
-import me.eater.emo.aardvark.labelButton
+import me.eater.emo.aardvark.utils.labelButton
 import tornadofx.*
 
 class BigAccount : Fragment() {

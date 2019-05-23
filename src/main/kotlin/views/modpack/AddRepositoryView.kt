@@ -6,10 +6,10 @@ import javafx.scene.Node
 import kotlinx.coroutines.*
 import kotlinx.coroutines.javafx.JavaFx
 import me.eater.emo.RepositoryCache
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.fragments.RepositoryFragment
-import me.eater.emo.aardvark.not
+import me.eater.emo.aardvark.utils.not
 import me.eater.emo.emo.RepositoryDefinition
 import me.eater.emo.emo.RepositoryType
 import me.eater.emo.emo.dto.repository.Repository

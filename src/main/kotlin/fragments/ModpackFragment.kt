@@ -5,11 +5,11 @@ import javafx.beans.property.ObjectProperty
 import javafx.geometry.Pos
 import javafx.scene.layout.Priority
 import me.eater.emo.ModpackCache
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
-import me.eater.emo.aardvark.f
-import me.eater.emo.aardvark.labelButton
-import me.eater.emo.aardvark.map
+import me.eater.emo.aardvark.utils.f
+import me.eater.emo.aardvark.utils.labelButton
+import me.eater.emo.aardvark.utils.map
 import me.eater.emo.aardvark.views.MainWindow
 import me.eater.emo.aardvark.views.ProfilesView
 import me.eater.emo.aardvark.views.profile.CreateProfileFromModpackView

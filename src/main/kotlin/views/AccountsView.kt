@@ -1,10 +1,10 @@
 package me.eater.emo.aardvark.views
 
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
-import me.eater.emo.aardvark.click
+import me.eater.emo.aardvark.utils.click
 import me.eater.emo.aardvark.controllers.EmoController
-import me.eater.emo.aardvark.f
-import me.eater.emo.aardvark.labelButton
+import me.eater.emo.aardvark.utils.f
+import me.eater.emo.aardvark.utils.labelButton
 import me.eater.emo.aardvark.views.account.AccountListView
 import me.eater.emo.aardvark.views.account.AccountLoginView
 import tornadofx.*

@@ -1,6 +1,8 @@
 package me.eater.emo.aardvark.views
 
+import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import javafx.scene.Node
+import javafx.scene.layout.HBox
 import javafx.scene.layout.Priority
 import javafx.scene.layout.VBox
 import javafx.scene.shape.FillRule
@@ -11,11 +13,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import me.eater.emo.Account
-import me.eater.emo.aardvark.click
 import me.eater.emo.aardvark.controllers.EmoController
-import me.eater.emo.aardvark.map
-import me.eater.emo.aardvark.prop
 import me.eater.emo.aardvark.styles.Icons
+import me.eater.emo.aardvark.utils.*
 import tornadofx.*
 import java.nio.file.*
 
@@ -25,10 +25,12 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
     private val accountsView: AccountsView by inject()
     private val profilesView: ProfilesView by inject()
     private val modpacksView: ModpacksView by inject()
+    private val settingsView: SettingsView by inject()
 
     lateinit var modpacksTab: VBox
     lateinit var profilesTab: VBox
     lateinit var accountsTab: VBox
+    lateinit var settingsTab: HBox
 
     override fun onBeforeShow() {
         primaryStage.minWidth = 800.0
@@ -39,7 +41,7 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
         prefWidth = 680.0
         prefHeight = 400.0
 
-        addClass("main-window", "contrast-light")
+        addClass("main-window")
 
         center = if (emoController.accounts.count() == 0) accountsView.root else profilesView.root
 
@@ -124,7 +126,7 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
                         vgrow = Priority.ALWAYS
 
                         prefHeightProperty().bind(this@comboContainer.layoutBoundsProperty().map {
-                            it.height
+                            it.height - 10
                         })
 
                         addClass("account-selector")
@@ -141,6 +143,16 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
                         cellFormat {
                             text = it.displayName
                         }
+                    }
+                }
+
+
+                settingsTab = labelButton {
+                    addClass("settings-menu-button", "main-button-label")
+                    f(FontAwesomeIcon.COG, 30.0)
+
+                    click {
+                        selectSettings()
                     }
                 }
             }
@@ -168,6 +180,12 @@ class MainWindow : View("Aardvark — A Minecraft modpack manager") {
         cleanCurrent()
         accountsTab.addClass("current")
         root.center.replaceWith(accountsView.root)
+    }
+
+    fun selectSettings() {
+        cleanCurrent()
+        settingsTab.addClass("current")
+        root.center.replaceWith(settingsView.root)
     }
 
     init {
