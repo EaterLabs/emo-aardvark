@@ -3,12 +3,17 @@ package me.eater.emo.aardvark.fragments
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import javafx.geometry.Pos
 import javafx.scene.layout.Priority
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
+import me.eater.emo.aardvark.AardvarkProfile
 import me.eater.emo.aardvark.controllers.AardvarkController
 import me.eater.emo.aardvark.controllers.EmoController
+import me.eater.emo.aardvark.controllers.InstallerController
 import me.eater.emo.aardvark.utils.*
-import me.eater.emo.emo.Profile
+import me.eater.emo.aardvark.views.ProfilesView
+import me.eater.emo.aardvark.views.profile.InstallerView
 import me.eater.emo.emo.dto.repository.Modpack
 import tornadofx.*
 import java.time.Instant
@@ -17,7 +22,7 @@ import java.time.format.DateTimeFormatter
 import java.util.*
 
 class ProfileFragment : Fragment() {
-    private val profile: Profile by param()
+    private val profile: AardvarkProfile by param()
     private val modpack: Modpack
         get() = profile.modpack
 
@@ -29,10 +34,11 @@ class ProfileFragment : Fragment() {
     }
 
     private val emoController: EmoController by inject()
+    private val installerController: InstallerController by inject()
     private val aardvarkController: AardvarkController by inject()
     private val profileState: AardvarkController.ProfileState by fxprop(
         aardvarkController.getProfileStateProperty(
-            profile
+            profile.profile
         )
     )
 
@@ -100,17 +106,54 @@ class ProfileFragment : Fragment() {
 
             click {
                 when (profileState) {
-                    AardvarkController.ProfileState.Running -> aardvarkController.stop(profile)
-                    AardvarkController.ProfileState.Stopped-> GlobalScope.launch {
-                        aardvarkController.play(profile)
+                    AardvarkController.ProfileState.Running -> aardvarkController.stop(profile.profile)
+                    AardvarkController.ProfileState.Stopped -> GlobalScope.launch {
+                        aardvarkController.play(profile.profile)
                     }
-                    else -> {}
+                    else -> {
+                    }
                 }
             }
 
             gridpaneConstraints {
                 rowIndex = 0
                 columnIndex = 3
+                columnSpan = if (profile.isRemote) 1 else 2
+            }
+        }
+
+        if (profile.isRemote) {
+            labelButton {
+                f(FontAwesomeIcon.UPLOAD)
+                val hasUpdate = aardvarkController.getProfileHasUpdateProperty(profile)
+                label(hasUpdate.map { if (it) "Update" else "Up-to-date" })
+                enableWhen(hasUpdate)
+
+                click {
+                    if (hasUpdate.value == true) {
+                        GlobalScope.launch {
+                            val remoteProfile = aardvarkController.getRemoteProfile(profile.remote!!)!!
+                            GlobalScope.launch(Dispatchers.JavaFx) {
+                                installerController.startInstall(
+                                    remoteProfile.toJob(
+                                        profile.location,
+                                        profile.name,
+                                        true,
+                                        profile.modpackVersion.mods
+                                    )
+                                )
+
+                                find<ProfilesView>().root.center.replaceWith(find<InstallerView>().root)
+                            }
+                        }
+                    }
+                }
+
+                gridpaneConstraints {
+                    rowIndex = 0
+                    columnIndex = 4
+                    columnSpan = 1
+                }
             }
         }
 
@@ -126,24 +169,42 @@ class ProfileFragment : Fragment() {
             gridpaneConstraints {
                 rowIndex = 2
                 columnIndex = 3
+                columnSpan = 2
             }
         }
 
         hbox {
+            isVisible = profile.createdOn != Instant.MIN
+
             label("Created on: ")
-            label(profile.createdOn.let {
-                when (it) {
-                    Instant.MIN -> "n/a"
-                    else -> dateFormatter.format(it)
-                }
-            })
+            label(
+                if (profile.createdOn != Instant.MIN)
+                    dateFormatter.format(profile.createdOn)
+                else
+                    "broken"
+            )
 
             gridpaneConstraints {
                 rowIndex = 3
                 columnIndex = 3
+                columnSpan = 2
+            }
+        }
+
+        hbox {
+            isVisible = profile.isRemote
+
+            f(FontAwesomeIcon.GLOBE)
+            label("Remote profile: ${profile.remote}")
+
+            gridpaneConstraints {
+                rowIndex = 3
+                columnIndex = 1
             }
         }
 
         constraintsForColumn(1).hgrow = Priority.ALWAYS
+        constraintsForColumn(3).hgrow = Priority.SOMETIMES
+        constraintsForColumn(4).hgrow = Priority.SOMETIMES
     }
 }

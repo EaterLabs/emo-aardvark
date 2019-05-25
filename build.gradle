@@ -24,7 +24,7 @@ dependencies {
     implementation 'com.beust:klaxon:5.0.5'
     implementation 'org.apache.commons:commons-compress:1.18'
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
-    implementation "com.github.EaterLabs:emo-kt:a760a22"
+    implementation "com.github.EaterLabs:emo-kt:aa36685"
     implementation "no.tornado:tornadofx:1.7.19"
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.2.1'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-javafx:1.2.1'

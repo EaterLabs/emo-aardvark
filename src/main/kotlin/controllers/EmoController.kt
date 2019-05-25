@@ -1,8 +1,6 @@
 package me.eater.emo.aardvark.controllers
 
-import javafx.beans.binding.ObjectBinding
-import javafx.beans.property.SimpleMapProperty
-import javafx.collections.FXCollections
+import javafx.beans.value.ObservableValue
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -10,8 +8,10 @@ import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import me.eater.emo.*
 import me.eater.emo.Target
+import me.eater.emo.aardvark.AardvarkProfile
 import me.eater.emo.aardvark.utils.fxprop
 import me.eater.emo.aardvark.utils.prop
+import me.eater.emo.aardvark.utils.property.DeepObservableMutableMapProperty
 import me.eater.emo.emo.Profile
 import me.eater.emo.emo.RepositoryDefinition
 import me.eater.emo.emo.RepositoryType
@@ -28,10 +28,10 @@ class EmoController : Controller() {
     val modpacks by lazy { mutableMapOf(*emo.getModpacks().entries.map { it.key to it.value }.toTypedArray()).asObservable() }
     val modpacksList by lazy { modpacks.values.toMutableList().asObservable() }
     val repositories by lazy { getRepositoryCaches().asObservable() }
-    val profiles by lazy { mutableListOf(*emo.getProfiles().toTypedArray()).asObservable() }
+    val profiles by lazy { mutableListOf(*emo.getProfiles().map { AardvarkProfile(it) }.toTypedArray()).asObservable() }
     var account: Account? by fxprop()
 
-    private val processes: SimpleMapProperty<String, Process> = SimpleMapProperty(FXCollections.observableHashMap())
+    private val processes: DeepObservableMutableMapProperty<String, Process?> = DeepObservableMutableMapProperty()
 
     suspend fun logIn(username: String, password: String): Account =
         emo.accountLogIn(username, password).also {
@@ -53,7 +53,7 @@ class EmoController : Controller() {
     }
 
     fun updateProfiles() = fx {
-        profiles.setAll(emo.getProfiles())
+        profiles.setAll(emo.getProfiles().map { AardvarkProfile(it) })
     }
 
     suspend fun updateRepositories() {
@@ -133,7 +133,9 @@ class EmoController : Controller() {
             modpack = modpackCache.modpack.withoutVersions(),
             target = Target.Client,
             mods = modpackVersion.mods,
-            instance = emo
+            instance = emo,
+            servers = job.servers,
+            isUpdate = job.update
         )
     }
 
@@ -143,13 +145,13 @@ class EmoController : Controller() {
         }
 
         fx {
-            profiles[profiles.indexOf(profile)] = profile
+            profiles[profiles.indexOf(AardvarkProfile(profile))] = AardvarkProfile(profile)
         }
 
         val process = emo.getMinecraftExecutor(
             profile,
             account ?: throw RuntimeException("Please select an account before start a profile"),
-            java ?: "java"
+            java ?: "java${if (EmoEnvironment().osName == "windows") ".exe" else ""}"
         )
             .execute()
 
@@ -166,9 +168,9 @@ class EmoController : Controller() {
         return process
     }
 
-    fun getProcessProperty(profile: Profile): ObjectBinding<Process?> {
+    fun getProcessProperty(profile: Profile): ObservableValue<Process?> {
         processes.putIfAbsent(profile.location, null)
-        return processes.valueAt(profile.location)
+        return processes.getObservable(profile.location)
     }
 
     fun getDataDirectory(): String =

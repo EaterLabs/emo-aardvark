@@ -12,6 +12,10 @@ import kotlin.properties.ReadOnlyProperty
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
+@FunctionalInterface
+
+data class ChangedEvent<T>(val observableValue: ObservableValue<out T>, val oldValue: T, val newValue: T)
+
 fun <K, T> fxprop(observableValue: ObservableValue<out T>): ReadOnlyProperty<K, T> {
     return object : ReadOnlyProperty<K, T>, ChildObservableValue<T> {
         override fun getObservableValue(): ObservableValue<out T> = observableValue
@@ -19,7 +23,12 @@ fun <K, T> fxprop(observableValue: ObservableValue<out T>): ReadOnlyProperty<K, 
     }
 }
 
-fun <K, T> fxprop(prop: Property<out T>): ReadWriteProperty<K, T> {
+fun <K, T> fxprop(prop: Property<out T>, onChange: ((ChangedEvent<T>) -> Unit)? = null): ReadWriteProperty<K, T> {
+    if (onChange != null)
+        prop.addListener { obs, old, new ->
+            onChange(ChangedEvent(obs, old, new))
+        }
+
     return object : ReadWriteProperty<K, T>, ChildProperty<T> {
         override fun getProperty(): Property<out T> = prop
         override fun getValue(thisRef: K, property: KProperty<*>): T = prop.value
@@ -33,4 +42,5 @@ fun <K, T> fxprop(prop: Property<out T>): ReadWriteProperty<K, T> {
     }
 }
 
-fun <K, T> fxprop(default: T? = null): ReadWriteProperty<K, T> = fxprop(SimpleObjectProperty<T>(default))
+fun <K, T> fxprop(default: T? = null, onChange: ((ChangedEvent<T>) -> Unit)? = null): ReadWriteProperty<K, T> =
+    fxprop(SimpleObjectProperty<T>(default), onChange)

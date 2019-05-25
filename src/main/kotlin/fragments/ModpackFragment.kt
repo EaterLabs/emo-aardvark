@@ -22,9 +22,11 @@ class ModpackFragment : Fragment() {
 
     private val modpackCache: ModpackCache by param()
     private val forceVersion: ModpackVersion? by param()
-    private val noButtons: Boolean by param(false)
-
     private val modpack by lazy { modpackCache.modpack }
+    private val name: String by param(modpack.name)
+    private val description: String by param(modpack.description)
+
+    private val noButtons: Boolean by param(false)
     private val repository by lazy { emoController.getRepository(modpackCache.repository) }
 
     private var version: ModpackVersion by property()
@@ -57,14 +59,14 @@ class ModpackFragment : Fragment() {
             }
         }
 
-        label(modpack.name) {
+        label(name) {
             gridpaneConstraints {
                 rowIndex = 0
                 columnIndex = 1
             }
         }
 
-        text(modpack.description) {
+        text(description) {
             addClass("modpack-description")
 
             gridpaneConstraints {

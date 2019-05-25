@@ -4,7 +4,9 @@ import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import javafx.animation.Timeline
 import javafx.beans.value.WritableValue
 import javafx.scene.control.Label
-import me.eater.emo.aardvark.controllers.EmoController
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+import me.eater.emo.aardvark.controllers.AardvarkController
 import me.eater.emo.aardvark.controllers.InstallerController
 import me.eater.emo.aardvark.fragments.ModpackFragment
 import me.eater.emo.aardvark.utils.*
@@ -12,7 +14,7 @@ import tornadofx.*
 
 class InstallerView : View() {
     private val installerController: InstallerController by inject()
-    private val emoController: EmoController by inject()
+    private val aardvarkController: AardvarkController by inject()
     private var modpackSlot = vbox()
 
     private val rotateProperty = object : WritableValue<Double> {
@@ -148,7 +150,10 @@ class InstallerView : View() {
                                     val state = installerController.state
 
                                     if (state is InstallerController.State.Done) {
-                                        emoController.play(state.profile)
+                                        GlobalScope.launch {
+                                            aardvarkController.play(state.profile)
+                                        }
+
                                         replaceWith<ProfileListingView>()
                                     }
                                 }

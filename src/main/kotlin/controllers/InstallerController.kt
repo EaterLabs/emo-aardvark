@@ -12,11 +12,15 @@ import me.eater.emo.ModpackCache
 import me.eater.emo.aardvark.utils.AutoObserver
 import me.eater.emo.aardvark.utils.fxprop
 import me.eater.emo.emo.Profile
+import me.eater.emo.emo.dto.repository.Mod
 import me.eater.emo.emo.dto.repository.ModpackVersion
+import me.eater.emo.minecraft.dto.nbt.Server
 import tornadofx.Controller
+import java.io.File
 
 class InstallerController : Controller() {
     private val emoController: EmoController by inject()
+    private val aardvarkController: AardvarkController by inject()
     private val tasksList: ObservableList<Task> = FXCollections.observableList(mutableListOf())
 
     val tasks: ObservableList<Task>
@@ -47,9 +51,22 @@ class InstallerController : Controller() {
                     ch.send(lastTask!!)
                 }
 
-                ch.close()
                 lastTask?.let { task -> task.state = Task.TaskState.Done }
+
+                if (job.remote != null) {
+                    lastTask = Task("Adding aardvark remote profile", Task.TaskState.Running)
+                    ch.send(lastTask!!)
+
+                    val remoteTxt = File("${context.installLocation}/.emo/remote.txt")
+                    remoteTxt.parentFile.mkdirs()
+                    remoteTxt.writeText(job.remote)
+                }
+
+                lastTask?.let { task -> task.state = Task.TaskState.Done }
+                ch.close()
+
                 emoController.updateProfiles()
+
                 State.Done(job, context.profile!!)
             } catch (t: Throwable) {
                 lastTask?.let { task -> task.state = Task.TaskState.Error(t) }
@@ -89,7 +106,11 @@ class InstallerController : Controller() {
         val name: String,
         val location: String,
         val modpackCache: ModpackCache,
-        val modpackVersion: ModpackVersion
+        val modpackVersion: ModpackVersion,
+        val servers: List<Server> = listOf(),
+        val remote: String? = null,
+        val update: Boolean = false,
+        val managedMods: List<Mod> = listOf()
     )
 
     sealed class State {
