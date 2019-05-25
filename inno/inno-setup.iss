@@ -13,6 +13,7 @@ LicenseFile=..\LICENSE
 OutputBaseFilename=setup
 Compression=lzma
 SolidCompression=yes
+ArchitecturesInstallIn64BitMode=x64
 
 [Files]
 Source: "..\build\image\aardvark\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
