@@ -58,3 +58,10 @@ jobs:
           pushWorkingDirectory: '$(Build.ArtifactStagingDirectory)'
           chocolateySourceType: 'manual'
           sourceOperation: 'add'
+      - task: CmdLine@2
+        inputs:
+          script: 'iscc "inno/inno-setup.iss"'
+      - task: PublishBuildArtifacts@1
+        inputs:
+          PathtoPublish: 'inno/Output/setup.exe'
+          artifactName: 'aardvark-win-installer'
