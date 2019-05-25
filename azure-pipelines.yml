@@ -1,51 +1,55 @@
 trigger:
   - master
 
-jobs:
-  - job: build_unix_image
-    strategy:
-      matrix:
-        linux:
-          imageName: 'ubuntu-16.04'
-          buildName: 'linux'
-        mac:
-          imageName: 'macos-10.13'
-          buildName: 'osx'
-    pool:
-      vmImage: $(imageName)
-    steps:
-      - task: Gradle@2
-        inputs:
-          workingDirectory: ''
-          gradleWrapperFile: 'gradlew'
-          gradleOptions: '-Xmx3072m'
-          javaHomeOption: 'JDKVersion'
-          jdkVersionOption: '1.12'
-          jdkArchitectureOption: 'x64'
-          publishJUnitResults: false
-          testResultsFiles: '**/TEST-*.xml'
-          tasks: 'runtime'
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: 'build/image/aardvark'
-          artifactName: 'aardvark-$(buildName)'
-  - job: build_win_image
-    pool:
-      vmImage: 'win1803'
-    container: openjdk:12.0.1-jdk-windowsservercore-1803
-    steps:
-      - task: Gradle@2
-        inputs:
-          workingDirectory: ''
-          gradleWrapperFile: 'gradlew'
-          gradleOptions: '-Xmx3072m'
-          publishJUnitResults: false
-          testResultsFiles: '**/TEST-*.xml'
-          tasks: 'runtime'
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: 'build/image/aardvark'
-          artifactName: 'aardvark-win'
+stages:
+- stage: building
+  jobs:
+    - job: build_unix_image
+      strategy:
+        matrix:
+          linux:
+            imageName: 'ubuntu-16.04'
+            buildName: 'linux'
+          mac:
+            imageName: 'macos-10.13'
+            buildName: 'osx'
+      pool:
+        vmImage: $(imageName)
+      steps:
+        - task: Gradle@2
+          inputs:
+            workingDirectory: ''
+            gradleWrapperFile: 'gradlew'
+            gradleOptions: '-Xmx3072m'
+            javaHomeOption: 'JDKVersion'
+            jdkVersionOption: '1.12'
+            jdkArchitectureOption: 'x64'
+            publishJUnitResults: false
+            testResultsFiles: '**/TEST-*.xml'
+            tasks: 'runtime'
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: 'build/image/aardvark'
+            artifactName: 'aardvark-$(buildName)'
+    - job: build_win_image
+      pool:
+        vmImage: 'win1803'
+      container: openjdk:12.0.1-jdk-windowsservercore-1803
+      steps:
+        - task: Gradle@2
+          inputs:
+            workingDirectory: ''
+            gradleWrapperFile: 'gradlew'
+            gradleOptions: '-Xmx3072m'
+            publishJUnitResults: false
+            testResultsFiles: '**/TEST-*.xml'
+            tasks: 'runtime'
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: 'build/image/aardvark'
+            artifactName: 'aardvark-win'
+- stage: packaging
+  jobs:
   - job: build_win_installer
     pool:
       vmImage: windows-2019
