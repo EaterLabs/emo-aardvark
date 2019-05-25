@@ -64,7 +64,10 @@ stages:
         inputs:
           script: |
             choco install -y innosetup
-            mv build\image\aardvark-win build\image\aarvark
+            echo Moving aardvark-win to aardvark
+            mv build\image\aardvark-win build\image\aardvark
+            dir build\image
+            echo Compiling inno installer
             iscc "inno/inno-setup.iss"
       - task: PublishBuildArtifacts@1
         inputs:
