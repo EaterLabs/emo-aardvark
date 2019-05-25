@@ -46,3 +46,15 @@ jobs:
         inputs:
           PathtoPublish: 'build/image/aardvark'
           artifactName: 'aardvark-win'
+      - task: ChocolateyCommand@0
+        inputs:
+          command: 'install'
+          configOperation: 'set'
+          featureOperation: 'enable'
+          installPackageId: 'innosetup'
+          packOperation: 'single'
+          packWorkingDirectory: '$(Build.Repository.LocalPath)'
+          pushOperation: 'single'
+          pushWorkingDirectory: '$(Build.ArtifactStagingDirectory)'
+          chocolateySourceType: 'manual'
+          sourceOperation: 'add'
