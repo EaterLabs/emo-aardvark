@@ -46,10 +46,20 @@ jobs:
         inputs:
           PathtoPublish: 'build/image/aardvark'
           artifactName: 'aardvark-win'
-      - task: CmdLine@2
-        inputs:
-          script: 'choco install -y innosetup\niscc "inno/inno-setup.iss"'
-      - task: PublishBuildArtifacts@1
-        inputs:
-          PathtoPublish: 'inno/Output/setup.exe'
-          artifactName: 'aardvark-win-installer'
+  - job: build_win_installer
+    pool:
+      vmImage: windows-2019
+      steps:
+        - task: DownloadBuildArtifacts@0
+          inputs:
+            buildType: 'current'
+            downloadType: 'single'
+            artifactName: 'aardvark-win'
+            downloadPath: 'build/image/aardvark'
+        - task: CmdLine@2
+          inputs:
+            script: 'choco install -y innosetup\niscc "inno/inno-setup.iss"'
+        - task: PublishBuildArtifacts@1
+          inputs:
+            PathtoPublish: 'inno/Output/setup.exe'
+            artifactName: 'aardvark-win-installer'
