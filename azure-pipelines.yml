@@ -59,10 +59,13 @@ stages:
           buildType: 'current'
           downloadType: 'single'
           artifactName: 'aardvark-win'
-          downloadPath: 'build/image/aardvark'
+          downloadPath: 'build/image'
       - task: CmdLine@2
         inputs:
-          script: 'choco install -y innosetup\niscc "inno/inno-setup.iss"'
+          script: |
+            choco install -y innosetup
+            mv build\image\aardvark-win build\image\aarvark
+            iscc "inno/inno-setup.iss"
       - task: PublishBuildArtifacts@1
         inputs:
           PathtoPublish: 'inno/Output/setup.exe'
