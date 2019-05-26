@@ -14,6 +14,7 @@ import me.eater.emo.aardvark.controllers.InstallerController
 import me.eater.emo.aardvark.utils.*
 import me.eater.emo.aardvark.views.ProfilesView
 import me.eater.emo.aardvark.views.profile.InstallerView
+import me.eater.emo.aardvark.views.profile.ProfileSettings
 import me.eater.emo.emo.dto.repository.Modpack
 import tornadofx.*
 import java.time.Instant
@@ -119,6 +120,21 @@ class ProfileFragment : Fragment() {
                 rowIndex = 0
                 columnIndex = 3
                 columnSpan = if (profile.isRemote) 1 else 2
+            }
+        }
+
+        labelButton {
+            f(FontAwesomeIcon.WRENCH)
+            label("Settings")
+
+            click {
+                find<ProfilesView>().root.center.replaceWith(find<ProfileSettings>("profile" to profile).root)
+            }
+
+            gridpaneConstraints {
+                rowIndex = 1
+                columnIndex = 3
+                columnSpan = 2
             }
         }
 
