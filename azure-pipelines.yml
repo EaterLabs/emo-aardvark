@@ -52,7 +52,7 @@ stages:
   jobs:
   - job: build_win_installer
     pool:
-      vmImage: windows-2019
+      vmImage: win1803
     steps:
       - task: DownloadBuildArtifacts@0
         inputs:
