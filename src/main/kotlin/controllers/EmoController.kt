@@ -50,6 +50,11 @@ class EmoController : Controller() {
 
     private fun updateAccounts() = fx {
         accounts.setAll(emo.getAccounts())
+
+        val currentAccount = account
+        if (account == null || currentAccount !in accounts) {
+            account = accounts.firstOrNull()
+        }
     }
 
     fun updateProfiles() = fx {
@@ -183,6 +188,10 @@ class EmoController : Controller() {
     init {
         GlobalScope.launch {
             emo.loadModpackCollectionCache()
+
+            if (emo.getRepositories().count() == 0) {
+                addRemoteRepository("https://raw.githubusercontent.com/EaterLabs/aardvark-repository/master/repository.json")
+            }
 
             val uuid = emo.useSettings(true) {
                 it.selectedAccount
