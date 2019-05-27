@@ -24,7 +24,7 @@ class BigAccount : Fragment() {
                 bottomAnchor = 0
             }
 
-            label(account.displayName) {
+            label(account.displayName ?: account.username) {
                 addClass("username")
 
                 alignment = Pos.CENTER_LEFT

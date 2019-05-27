@@ -46,7 +46,7 @@ class EmoController : Controller() {
     private fun getRepositoryCaches() =
         emo.getRepositories().flatMap { emo.getRepository(it.hash)?.let { listOf(it) } ?: listOf() }
 
-    suspend fun logOut(account: Account) = logOut(account.uuid)
+    suspend fun logOut(account: Account) = logOut(account.uuid!!)
 
     private fun updateAccounts() = fx {
         accounts.setAll(emo.getAccounts())
@@ -201,7 +201,7 @@ class EmoController : Controller() {
                 if (acc == null) return@onChange
 
                 emo.useSettings {
-                    it.selectAccount(acc.uuid)
+                    it.selectAccount(acc.uuid!!)
                 }
             }
 
