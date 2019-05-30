@@ -120,7 +120,7 @@ stages:
     - task: GithubRelease@0 
       displayName: 'Create GitHub Release'      
       inputs:
-        githubConnection: EaterLabs
+        githubConnection: EaterLabsPublish
         repositoryName: EaterLabs/emo-aardvark
         assetUploadMode: replace
         assets: 'assets/*'
