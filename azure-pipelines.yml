@@ -120,3 +120,9 @@ stages:
           cd ../aardvark-win
           zip -r $(Build.ArtifactStagingDirectory)/aardvark.windows.zip *
           cd ..
+    - task: GithubRelease@0 
+      displayName: 'Create GitHub Release'      
+      inputs:
+        gitHubConnection: BotEater
+        repositoryName: EaterLabs/emo-aardvark
+        assetUploadMode: replace
