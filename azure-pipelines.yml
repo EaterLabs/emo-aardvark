@@ -84,37 +84,37 @@ stages:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'aardvark-win'
-        downloadPath: 'windows'
+        downloadPath: '.'
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'aardvark-osx'
-        downloadPath: 'osx'
+        downloadPath: '.'
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'aardvark-linux'
-        downloadPath: 'linux'
+        downloadPath: '.'
     - task: DownloadBuildArtifacts@0
       inputs:
         buildType: 'current'
         downloadType: 'single'
         artifactName: 'aardvark-win-installer'
-        downloadPath: 'win-installer'
+        downloadPath: '.'
     - task: CmdLine@2
       inputs:
         script: |
           mkdir assets
-          mv win-installer/setup.exe assets/aardvark-installer.exe
-          cd linux;
+          mv aardvark-win-installer/setup.exe assets/aardvark-installer.exe
+          cd aardvark-linux;
           chmod +x bin/*
           tar -aJf ../assets/aardvark.linux.txz *
-          cd ../osx
+          cd ../aardvark-osx
           chmod +x bin/*
           tar -aJf ../assets/aardvark.osx.txz *
-          cd ../windows
+          cd ../aardvark-win
           zip -r ../assets/aardvark.windows.zip *
           cd ..
     - task: GithubRelease@0 
