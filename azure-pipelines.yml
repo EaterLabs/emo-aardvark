@@ -73,3 +73,54 @@ stages:
         inputs:
           PathtoPublish: 'inno/Output/setup.exe'
           artifactName: 'aardvark-win-installer'
+- stage: publishing
+  jobs:
+  - job: github_release
+    pool:
+      vmImage: ubuntu-16.04
+    steps:
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'aardvark-win'
+        downloadPath: 'windows'
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'aardvark-osx'
+        downloadPath: 'osx'
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'aardvark-linux'
+        downloadPath: 'linux'
+    - task: DownloadBuildArtifacts@0
+      inputs:
+        buildType: 'current'
+        downloadType: 'single'
+        artifactName: 'aardvark-win-installer'
+        downloadPath: 'win-installer'
+    - task: CmdLine@2
+      inputs:
+        script: |
+          mkdir assets
+          mv win-installer/setup.exe assets/aardvark-installer.exe
+          cd linux;
+          chmod +x bin/*
+          tar -aJf ../assets/aardvark.linux.txz *
+          cd ../osx
+          chmod +x bin/*
+          tar -aJf ../assets/aardvark.osx.txz *
+          cd ../windows
+          zip -r ../assets/aardvark.windows.zip *
+          cd ..
+    - task: GithubRelease@0 
+      displayName: 'Create GitHub Release'      
+      inputs:
+        githubConnection: EaterLabs
+        repositoryName: EaterLabs/emo-aardvark
+        assetUploadMode: replace
+        assets: 'assets/*'
