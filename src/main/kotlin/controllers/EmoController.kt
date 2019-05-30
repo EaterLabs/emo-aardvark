@@ -144,7 +144,7 @@ class EmoController : Controller() {
         )
     }
 
-    fun play(profile: Profile, java: String? = null): Process {
+    suspend fun play(profile: Profile, java: String? = null): Process {
         emo.useSettings {
             profile.lastTouched = Instant.now()
         }
