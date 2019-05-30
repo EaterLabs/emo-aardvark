@@ -261,6 +261,11 @@ class AardvarkController : Controller() {
     }
 
     suspend fun updateRemoteProfiles() {
+        try {
+            emoController.updateRepositories()
+        } catch (_: Throwable) {
+        }
+
         val remoteProfilesList = emoController.profiles
             .filter { it.isRemote }
 
