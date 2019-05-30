@@ -1,5 +1,9 @@
 trigger:
-  - master
+  branches:
+    include:
+      - master
+  tags:
+    include: ['*']
 
 stages:
 - stage: building
@@ -106,16 +110,15 @@ stages:
     - task: CmdLine@2
       inputs:
         script: |
-          mkdir assets
-          mv aardvark-win-installer/setup.exe assets/aardvark-installer.exe
+          mv aardvark-win-installer/setup.exe $(Build.ArtifactStagingDirectory)/aardvark-installer.exe
           cd aardvark-linux;
           chmod +x bin/*
-          tar -aJf ../assets/aardvark.linux.txz *
+          tar -aJf $(Build.ArtifactStagingDirectory)/aardvark.linux.txz *
           cd ../aardvark-osx
           chmod +x bin/*
-          tar -aJf ../assets/aardvark.osx.txz *
+          tar -aJf $(Build.ArtifactStagingDirectory)/aardvark.osx.txz *
           cd ../aardvark-win
-          zip -r ../assets/aardvark.windows.zip *
+          zip -r $(Build.ArtifactStagingDirectory)/aardvark.windows.zip *
           cd ..
     - task: GithubRelease@0 
       displayName: 'Create GitHub Release'      
@@ -123,4 +126,4 @@ stages:
         githubConnection: EaterLabsPublish
         repositoryName: EaterLabs/emo-aardvark
         assetUploadMode: replace
-        assets: 'assets/*'
+    
