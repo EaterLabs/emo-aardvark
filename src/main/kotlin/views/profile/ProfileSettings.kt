@@ -16,7 +16,13 @@ class ProfileSettings : Fragment() {
         get() = "${profile.location}/.emo/launch.json"
 
     private val launchOptions: LaunchOptions
-        get() = Klaxon().parse<LaunchOptions>(File(settingsFile)) ?: LaunchOptions()
+        get() = File(settingsFile).let {
+            if (!it.exists())
+                null
+            else
+                Klaxon().parse<LaunchOptions>(File(settingsFile))
+        } ?: LaunchOptions()
+
 
     private var jvmArgs: String by fxprop()
 
