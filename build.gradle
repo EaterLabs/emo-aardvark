@@ -35,6 +35,7 @@ dependencies {
     implementation 'net.swiftzer.semver:semver:1.0.0'
     implementation 'javax.servlet:javax.servlet-api:4.0.1'
     implementation 'org.bouncycastle:bcprov-jdk15on:1.61'
+    implementation 'com.mojang:authlib:1.5.22'
 }
 
 compileKotlin {

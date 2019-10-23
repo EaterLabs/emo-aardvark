@@ -1,5 +1,6 @@
 package me.eater.emo.aardvark.fragments
 
+import com.mojang.authlib.exceptions.AuthenticationException
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import javafx.geometry.Pos
 import javafx.scene.layout.Priority
@@ -12,7 +13,10 @@ import me.eater.emo.aardvark.controllers.AardvarkController
 import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.controllers.InstallerController
 import me.eater.emo.aardvark.utils.*
+import me.eater.emo.aardvark.views.AccountsView
+import me.eater.emo.aardvark.views.MainWindow
 import me.eater.emo.aardvark.views.ProfilesView
+import me.eater.emo.aardvark.views.account.AccountLoginView
 import me.eater.emo.aardvark.views.profile.InstallerView
 import me.eater.emo.aardvark.views.profile.ProfileSettings
 import me.eater.emo.emo.dto.repository.Modpack
@@ -109,7 +113,20 @@ class ProfileFragment : Fragment() {
                 when (profileState) {
                     AardvarkController.ProfileState.Running -> aardvarkController.stop(profile.profile)
                     AardvarkController.ProfileState.Stopped -> GlobalScope.launch {
-                        aardvarkController.play(profile.profile)
+                        try {
+                            aardvarkController.play(profile.profile)
+                        } catch (e: AuthenticationException) {
+                            GlobalScope.launch(Dispatchers.JavaFx) {
+                                val accountsView = find<AccountsView>()
+                                val accountLoginView = find<AccountLoginView>()
+                                val mainWindow = find<MainWindow>()
+                                mainWindow.selectAccounts()
+                                accountsView.root.center.replaceWith(accountLoginView.root)
+                                accountLoginView.tryLogin(emoController.account, e) {
+                                    mainWindow.selectProfiles()
+                                }
+                            }
+                        }
                     }
                     else -> {
                     }

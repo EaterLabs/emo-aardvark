@@ -1,5 +1,6 @@
 package me.eater.emo.aardvark.views.account
 
+import com.mojang.authlib.exceptions.AuthenticationException
 import javafx.event.EventHandler
 import javafx.geometry.Pos
 import javafx.scene.control.Label
@@ -9,6 +10,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
+import me.eater.emo.Account
 import me.eater.emo.aardvark.controllers.EmoController
 import tornadofx.*
 
@@ -23,6 +25,8 @@ class AccountLoginView : View() {
     private var password by property("")
 
     private val accountListView: AccountListView by inject()
+
+    private var actionAfterLogin: (() -> Unit)? = null
 
     override fun onDock() {
         password = ""
@@ -115,8 +119,25 @@ class AccountLoginView : View() {
                     return@ui
                 }
 
+                val action = actionAfterLogin
+                if (action != null) {
+                    actionAfterLogin = null
+                    action()
+                    return@ui
+                }
+
                 replaceWith(accountListView)
             }
         }
+    }
+
+    fun tryLogin(account: Account?, e: AuthenticationException, afterLogin: () -> Unit) {
+        account?.username?.let {
+            username = it
+        }
+        actionAfterLogin = afterLogin
+        errorLabel.text = e.message
+        hasError = true
+        passwordField.requestFocus()
     }
 }
