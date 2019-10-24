@@ -1,20 +1,28 @@
 package me.eater.emo.aardvark.views.profile
 
+import com.mojang.authlib.exceptions.AuthenticationException
 import de.jensd.fx.glyphs.fontawesome.FontAwesomeIcon
 import javafx.animation.Timeline
 import javafx.beans.value.WritableValue
 import javafx.scene.control.Label
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.javafx.JavaFx
 import kotlinx.coroutines.launch
 import me.eater.emo.aardvark.controllers.AardvarkController
+import me.eater.emo.aardvark.controllers.EmoController
 import me.eater.emo.aardvark.controllers.InstallerController
 import me.eater.emo.aardvark.fragments.ModpackFragment
 import me.eater.emo.aardvark.utils.*
+import me.eater.emo.aardvark.views.AccountsView
+import me.eater.emo.aardvark.views.MainWindow
+import me.eater.emo.aardvark.views.account.AccountLoginView
 import tornadofx.*
 
 class InstallerView : View() {
     private val installerController: InstallerController by inject()
     private val aardvarkController: AardvarkController by inject()
+    private val emoController: EmoController by inject()
     private var modpackSlot = vbox()
 
     private val rotateProperty = object : WritableValue<Double> {
@@ -150,11 +158,24 @@ class InstallerView : View() {
                                     val state = installerController.state
 
                                     if (state is InstallerController.State.Done) {
-                                        GlobalScope.launch {
-                                            aardvarkController.play(state.profile)
-                                        }
-
                                         replaceWith<ProfileListingView>()
+
+                                        GlobalScope.launch {
+                                            try {
+                                                aardvarkController.play(state.profile)
+                                            } catch (e: AuthenticationException) {
+                                                GlobalScope.launch(Dispatchers.JavaFx) {
+                                                    val accountsView = find<AccountsView>()
+                                                    val accountLoginView = find<AccountLoginView>()
+                                                    val mainWindow = find<MainWindow>()
+                                                    mainWindow.selectAccounts()
+                                                    accountsView.root.center.replaceWith(accountLoginView.root)
+                                                    accountLoginView.tryLogin(emoController.account, e) {
+                                                        mainWindow.selectProfiles()
+                                                    }
+                                                }
+                                            }
+                                        }
                                     }
                                 }
                             }

@@ -105,34 +105,42 @@ class AardvarkController : Controller() {
             profiles[profile.location] = ProfileState.Preparing
         }
 
-        val launcherJson = File("${profile.location}/.emo/launcher.json")
+        try {
+            val launcherJson = File("${profile.location}/.emo/launcher.json")
 
-        val requiresOwnJava = if (launcherJson.exists()) {
-            val launchOptions = settingsKlaxon.parse<LaunchOptions>(launcherJson.readText())
-            launchOptions?.java != null
-        } else settings.javaStyle !is JavaStyle.System
+            val requiresOwnJava = if (launcherJson.exists()) {
+                val launchOptions = settingsKlaxon.parse<LaunchOptions>(launcherJson.readText())
+                launchOptions?.java != null
+            } else settings.javaStyle !is JavaStyle.System
 
-        val defaultJava: String? = if (requiresOwnJava) {
-            val style = settings.javaStyle
-            when (style) {
-                is JavaStyle.MinecraftJDK -> checkMinecraftJDK()
-                is JavaStyle.AdoptOpenJDK -> checkAdoptOpenJDK(style)
-                else -> null
+            val defaultJava: String? = if (requiresOwnJava) {
+                val style = settings.javaStyle
+                when (style) {
+                    is JavaStyle.MinecraftJDK -> checkMinecraftJDK()
+                    is JavaStyle.AdoptOpenJDK -> checkAdoptOpenJDK(style)
+                    else -> null
+                }
+            } else
+                null
+
+            if (profile.location !in profileProcessWatchers) {
+                profileProcessWatchers.add(profile.location)
+                emoController.getProcessProperty(profile).onChange {
+                    profiles[profile.location] = if (it == null || !it.isAlive)
+                        ProfileState.Stopped
+                    else
+                        ProfileState.Running
+                }
             }
-        } else
-            null
 
-        if (profile.location !in profileProcessWatchers) {
-            profileProcessWatchers.add(profile.location)
-            emoController.getProcessProperty(profile).onChange {
-                profiles[profile.location] = if (it == null || !it.isAlive)
-                    ProfileState.Stopped
-                else
-                    ProfileState.Running
+            emoController.play(profile, defaultJava)
+        } catch (e: Throwable) {
+            GlobalScope.launch(Dispatchers.JavaFx) {
+                profiles[profile.location] = ProfileState.Stopped
             }
+
+            throw e
         }
-
-        emoController.play(profile, defaultJava)
     }
 
     private val java: String

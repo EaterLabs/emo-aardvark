@@ -48,7 +48,7 @@ the remote profile looks like the following:
   "servers": [	
     {
       "name": "Eater's server",
-      "ip": "raquel.voor.money"
+      "ip": "minecraft.example.org"
     }
   ]
 }
