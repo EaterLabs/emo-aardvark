@@ -165,7 +165,7 @@ class AardvarkController : Controller() {
 
         val obj: AdoptOpenJDKReleaseInfo = Klaxon().parse(json)!!
         val info = obj.binaries.first()
-        val version = "jdk${info.versionData.openjdkVersion.split("_openj9").first()}-jre"
+        val version = "${obj.releaseName.split("_openj9").first()}-jre"
         val aojdkJRE = "$aojdkFolder/$version"
         if (!File("$aojdkJRE/bin/$java").exists()) {
             ExtractUtils.downloadAndExtractArchive(info.binaryLink, aojdkFolder)
@@ -187,6 +187,7 @@ class AardvarkController : Controller() {
         }
 
         val jre = emoController.getMinecraftJRE()!!
+
         val minecraftJRE = "$minecraftJreFolder/${jre.version!!}"
         if (!File("$minecraftJRE/bin/$java").exists()) {
             JreUtil.downloadJRE(jre, minecraftJRE)
