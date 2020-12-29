@@ -15,7 +15,7 @@ stages:
             imageName: 'ubuntu-16.04'
             buildName: 'linux'
           mac:
-            imageName: 'macos-10.13'
+            imageName: 'macOS-latest'
             buildName: 'osx'
       pool:
         vmImage: $(imageName)
@@ -37,7 +37,7 @@ stages:
             artifactName: 'aardvark-$(buildName)'
     - job: build_win_image
       pool:
-        vmImage: 'win1803'
+        vmImage: 'windows-latest'
       container: openjdk:12.0.1-jdk-windowsservercore-1803
       steps:
         - task: Gradle@2
